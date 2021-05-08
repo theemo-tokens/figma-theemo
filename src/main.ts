@@ -1,5 +1,5 @@
 import { canHandleNode } from './nodes/utils';
-import { RefNode } from './nodes/types';
+import type { RefNode } from './nodes/types';
 import Container from './container/index';
 
 figma.showUI(__html__, {

@@ -1,12 +1,18 @@
 {
   "name": "figma-theemo",
-  "version": "10",
+  "version": "0.1.0",
   "description": "",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "build": "yarn webpack --mode=production",
-    "start": "yarn webpack --mode=development --watch"
+    "__build": "yarn webpack --mode=production",
+    "__start": "yarn webpack --mode=development --watch",
+    "dev": "npm-run-all -p dev:*",
+    "dev:runtime": "cd src && vite",
+    "dev:ui": "cd ui && vite",
+    "build": "npm-run-all build:*",
+    "build:runtime": "cd src && vite build",
+    "build:ui": "cd ui && vite build"
   },
   "author": "Thomas Gossmann",
   "license": "MIT",
@@ -18,17 +24,34 @@
     "html-webpack-plugin": "^3.2.0",
     "style-loader": "^1.1.2",
     "ts-loader": "^6.2.1",
-    "typescript": "^3.9.5",
     "url-loader": "^3.0.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
   },
   "devDependencies": {
-    "@figma/plugin-typings": "^1.15.0",
-    "@types/jest": "^25.2.3",
-    "esbuild-jest": "^0.1.1",
-    "figma-api-stub": "^0.0.42",
-    "jest": "^26.0.1",
-    "ts-jest": "^26.1.0"
+    "@figma/plugin-typings": "^1.23.0",
+    "@rollup/plugin-image": "^2.0.6",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.9",
+    "@types/jest": "^26.0.23",
+    "esbuild": "^0.11.20",
+    "esbuild-jest": "^0.5.0",
+    "figma-api-stub": "^0.0.47",
+    "figma-plugin-ds-svelte": "^1.1.6",
+    "jest": "^26.6.3",
+    "npm-run-all": "^4.1.5",
+    "rollup": "2.45.2",
+    "rollup-plugin-esbuild": "^4.1.0",
+    "rollup-plugin-inline-svg": "^2.0.0",
+    "rollup-plugin-svelte-svg": "^0.2.3",
+    "rollup-plugin-svg": "^2.0.0",
+    "svelte": "^3.38.2",
+    "svelte-preprocess": "^4.7.3",
+    "ts-jest": "^26.5.6",
+    "typescript": "^4.2.4",
+    "vite": "2.2.4",
+    "vite-plugin-singlefile": "^0.5.1",
+    "vite-plugin-svg": "^0.7.0"
   }
 }
