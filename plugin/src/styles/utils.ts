@@ -1,6 +1,5 @@
 import { COLLECTION } from './types';
-// @ts-ignore
-import cc from 'color-converter';
+import { colord } from 'colord';
 
 export function createOrFindStyle(name: string, type: COLLECTION): BaseStyle {
   switch (type) {
@@ -43,30 +42,34 @@ interface PaintTransforms {
 
 export function applyPaintTransforms(paint: SolidPaint, transforms: PaintTransforms) {
   const out = { ...paint };
-  const c = cc.fromRGBA(out.color.r * 255, out.color.g * 255, out.color.b * 255, out.opacity);
+  // const rgba = `rgba(${out.color.r * 255} ${out.color.g * 255} ${out.color.b * 255}, out.opacity)`;
+  // const c = cc.fromRGBA(out.color.r * 255, out.color.g * 255, out.color.b *
+  // 255, out.opacity);
+  // const c = new Color();
+  const c = colord({r: out.color.r * 255, g: out.color.g * 255, b: out.color.b * 255, alpha: out.opacity});
   
   if (transforms.hue) {
     c.rotate(transforms.hue);
   }
 
   if (transforms.saturation) {
-    c.saturate(transforms.saturation);
+    c.saturate(transforms.saturation / 10);
   }
 
   if (transforms.lightness) {
-    c.lighten(transforms.lightness);
+    c.lighten(transforms.lightness / 10);
   }
 
   if (transforms.opacity) {
-    c.fade(transforms.opacity);
+    c.alpha(transforms.opacity / 10);
   }
 
   out.color = {
-    r: c.red / 255,
-    g: c.green / 255,
-    b: c.blue / 255
+    r: c.rgba.r / 255,
+    g: c.rgba.g / 255,
+    b: c.rgba.b / 255
   };
-  out.opacity = c.alpha;
+  out.opacity = c.rgba.a;
 
   return out;
 }

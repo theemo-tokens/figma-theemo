@@ -1,4 +1,4 @@
-import { DEFAULT_CONFIG } from '../../shared/config';
+import { DEFAULT_CONFIG } from '../../../shared/config';
 
 function mapToObject(map: Map<string, unknown>): Record<string, unknown> {
   const data = {};

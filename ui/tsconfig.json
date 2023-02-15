@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    // "target": "es2017",
+    "target": "ESNext",
+    // "moduleResolution": "node",
+    // "lib": [
+    //   "DOM",
+    //   "ES6",
+    //   "DOM.Iterable",
+    //   "ScriptHost",
+    //   "ES2017.object"
+    // ],
+    "esModuleInterop": true,
+    "inlineSourceMap": false,
+    "baseUrl": ".",
+  }
+}
