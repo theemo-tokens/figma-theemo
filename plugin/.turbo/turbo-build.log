@@ -1,0 +1,6 @@
+
+> @theemo/figma-plugin@ build /Users/gossi/code/theemo/figma-theemo/plugin
+> spack --mode production
+
+Bundling done: 0s 67.982583ms
+Done: 0s 0.18525ms

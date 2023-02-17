@@ -1,27 +1,24 @@
 <script>
   import { section } from '../ui';
   import { Icon } from 'figma-plugin-ds-svelte';
-  import IconSettings from '../icons/settings.svg';
-  import IconTools from '../icons/tools.svg';
+  import IconSettings from '../assets/icons/settings.svg';
+  import IconTools from '../assets/icons/tools.svg';
 </script>
 
 <div class="tabs">
   <span
     class="tab"
-    tabNumber="1"
     on:click={() => section.set('selection')}
     class:active={$section === 'selection'}>Selection</span
   >
   <span
     class="tab"
-    tabNumber="2"
     on:click={() => section.set('tokens')}
     class:active={$section === 'tokens'}>Tokens</span
   >
 
   <!-- <span
     class="tab"
-    tabNumber="2"
     on:click={() => section.set('theme')}
     class:active={$section === 'settings'}
   >
@@ -31,7 +28,6 @@
   <span
     class="tab"
     style="margin-left: auto;"
-    tabNumber="2"
     on:click={() => section.set('settings')}
     class:active={$section === 'settings'}
   >

@@ -15,8 +15,8 @@
     //   "ES2017.object"
     // ],
     "typeRoots": [
-      "../node_modules/@types",
-      "../node_modules/@figma"
+      "node_modules/@types",
+      "node_modules/@figma"
     ],
     "esModuleInterop": true,
     "inlineSourceMap": false,
@@ -32,6 +32,6 @@
   "include": [
     "src/",
     "tests/",
-    "../shared"
+    "../../shared"
   ]
 }

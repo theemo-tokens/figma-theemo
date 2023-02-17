@@ -1,7 +1,7 @@
 <script>
   import { section, messenger } from './ui';
   import { setContext } from 'svelte';
-  import TabBar from './components/TabBar';
+  import TabBar from './components/TabBar.svelte';
   import Selection from './sections/Selection.svelte';
   import Tokens from './sections/Tokens.svelte';
   import { get } from 'svelte/store';

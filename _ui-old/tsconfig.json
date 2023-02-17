@@ -2,7 +2,7 @@
   "compilerOptions": {
     // "target": "es2017",
     "target": "ESNext",
-    "moduleResolution": "node",
+    // "moduleResolution": "node",
     // "lib": [
     //   "DOM",
     //   "ES6",
@@ -10,11 +10,8 @@
     //   "ScriptHost",
     //   "ES2017.object"
     // ],
-    "typeRoots": [
-      "../node_modules/@types",
-      "../node_modules/@figma"
-    ],
     "esModuleInterop": true,
-    "inlineSourceMap": false
+    "inlineSourceMap": false,
+    "baseUrl": ".",
   }
 }

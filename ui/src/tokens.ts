@@ -1,4 +1,4 @@
-import { get, Writable, writable } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 import { messenger } from './ui';
 
 export interface Token {

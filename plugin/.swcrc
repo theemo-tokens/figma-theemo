@@ -1,5 +1,5 @@
 {
-  "sourceMaps": true,
+  "$schema": "https://json.schemastore.org/swcrc",
   "jsc": {
     "parser": {
       "syntax": "typescript",
@@ -7,9 +7,10 @@
       "decorators": false,
       "dynamicImport": true
     },
-    "target": "es2019",
+    "target": "es2015",
     "loose": true
   },
+  "sourceMaps": true,
   "module": {
     "type": "es6"
   }

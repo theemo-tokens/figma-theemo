@@ -1,4 +1,4 @@
-import App from './PluginUI';
+import App from './PluginUI.svelte';
 
 import { GlobalCSS } from 'figma-plugin-ds-svelte';
 
