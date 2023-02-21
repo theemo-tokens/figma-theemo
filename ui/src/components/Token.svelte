@@ -9,14 +9,14 @@
     <span class="color-swatch" style="--value: {getColorAsCSS(token)}" />
   {/if}
 
-  <span>{token.style.name}</span>
+  <span>{token.name}</span>
 </span>
 
 <style>
   .token {
     display: flex;
     gap: 8px;
-    padding: 4px;
+    align-items: center;
   }
 
   .color-swatch {

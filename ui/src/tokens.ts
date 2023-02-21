@@ -1,33 +1,14 @@
-import { get, writable, type Writable } from 'svelte/store';
+import { get, writable, derived } from 'svelte/store';
 import { messenger } from './ui';
+import type { Token } from '@theemo/figma-shared';
 
-export interface Token {
-  id: string;
-  origin: 'LOCAL' | 'REMOTE';
-  style: PaintStyle | TextStyle | GridStyle | EffectStyle | null;
-}
+const tokens = writable<Token[]>([]);
 
-export const colors = writable<Token[]>([]);
-export const effects = writable<Token[]>([]);
-export const texts = writable<Token[]>([]);
-
-function findStore(token: Token): Writable<Token[]> | undefined {
-  if (!token.style) {
-    return;
-  }
-
-  if (token.style.type === 'PAINT') {
-    return colors;
-  }
-
-  if (token.style.type === 'EFFECT') {
-    return effects;
-  }
-
-  if (token.style.type === 'TEXT') {
-    return texts;
-  }
-}
+export const colors = derived(tokens, $tokens => $tokens.filter(token => token.style.type === 'PAINT'));
+export const texts = derived(tokens, $tokens => $tokens.filter(token => token.style.type === 'TEXT'));
+export const effects = derived(tokens, $tokens => $tokens.filter(token => token.style.type === 'EFFECT'));
+export const numerics = derived(tokens, $tokens => $tokens.filter(token => token.type === 'numeric'));
+export const strokes = derived(tokens, $tokens => $tokens.filter(token => token.type === 'stroke'));
 
 export function getColorAsCSS(token: Token) {
   if (token.style.type === 'PAINT') {
@@ -39,19 +20,35 @@ export function getColorAsCSS(token: Token) {
   }
 }
 
-get(messenger).addListener('token-initiated', (tokens: { colors: Token[], effects: Token[], texts: Token[]}) => {
-  colors.set(tokens.colors);
-  effects.set(tokens.effects);
-  texts.set(tokens.texts);
+function findIndex(id: string) {
+  return get(tokens).findIndex(token => token.id === id);
+}
+
+get(messenger).addListener('token-initiated', (initialTokens: Token[]) => {
+  tokens.set(initialTokens);
 });
 
 get(messenger).addListener('token-created', (token: Token) => {
-  const store = findStore(token);
+  tokens.set([...get(tokens), token]);
+});
 
-  if (store) {
-    console.log('set store', [...get(store), token]);
-    
-    store.set([...get(store), token]);
+get(messenger).addListener('token-updated', (token: Token) => {
+  const index = findIndex(token.id);
+  
+  if (index !== -1) {
+    const updated = get(tokens);
+    updated[index] = token;
+    tokens.set(updated);
+  }
+});
+
+get(messenger).addListener('token-deleted', (id: string) => {
+  const index = findIndex(id);
+
+  if (index !== -1) {
+    const updated = get(tokens);
+    updated.splice(index, 1);
+    tokens.set(updated);
   }
 });
 

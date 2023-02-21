@@ -1,13 +1,18 @@
 import Container from './container/index';
+import { Token } from '@theemo/figma-shared';
 
-interface Token extends BaseStyleChange {
-  // more here
-}
+type TokenMap = Map<string, Token>;
+
+const SKIPPED_SERIALIZATION_FIELDS = ['consumers'];
 
 function serialize(object: Object) {
   const ret = {};
 
   for (const prop in object) {
+    if (SKIPPED_SERIALIZATION_FIELDS.indexOf(prop) !== -1) {
+      continue;
+    }
+
     if (typeof object[prop] === 'object') {
       ret[prop] = serialize(object[prop]);
     } else {
@@ -18,11 +23,16 @@ function serialize(object: Object) {
   return ret;
 }
 
+function getIdFromChange(change: StyleCreateChange | StylePropertyChange | StyleDeleteChange) {
+  const { id } = change;
+  const parts = id.split(',');
+  return `${parts[0]},`;
+}
+
 export default class TokenObserver {
 
-  private colors: Map<string, Token> = new Map();
-  private effects: Map<string, Token> = new Map();
-  private texts: Map<string, Token> = new Map();
+  private static NAMESPACE = 'theemo';
+  private tokens: TokenMap = new Map();
 
   constructor(private container: Container) {
     figma.on('documentchange', this.listen.bind(this));
@@ -31,45 +41,38 @@ export default class TokenObserver {
   }
 
   private init() {
+    // const tokensRaw = figma.root.getSharedPluginData(TokenObserver.NAMESPACE, 'tokens') ?? '{}';
+    // const tokens = JSON.parse(tokensRaw);
+
     for (const paint of figma.getLocalPaintStyles()) {
-      this.colors.set(paint.id, {
+      this.tokens.set(paint.id, {
         id: paint.id,
-        origin: 'LOCAL',
+        name: paint.name,
         style: paint
       });
     }
 
     for (const effect of figma.getLocalEffectStyles()) {
-      this.colors.set(effect.id, {
+      this.tokens.set(effect.id, {
         id: effect.id,
-        origin: 'LOCAL',
+        name: effect.name,
         style: effect
       });
     }
 
     for (const text of figma.getLocalTextStyles()) {
-      this.colors.set(text.id, {
+      this.tokens.set(text.id, {
         id: text.id,
-        origin: 'LOCAL',
+        name: text.name,
         style: text
       });
     }
 
-    this.container.emitter.sendEvent('token-initiated', {
-      colors: [...this.colors.values()].map(serialize),
-      effects: [...this.effects.values()].map(serialize),
-      texts: [...this.texts.values()].map(serialize)
-    });
+    this.container.emitter.sendEvent('token-initiated', [...this.tokens.values()].map(serialize));
   }
 
   private listen(e: DocumentChangeEvent) {
     for (const change of e.documentChanges) {
-      console.log('changes', change);
-      
-      if (change.type.startsWith('STYLE')) {
-        console.log('change event', change);
-      }
-
       if (change.type === 'STYLE_CREATE') {
         this.create(change);
       }
@@ -85,20 +88,37 @@ export default class TokenObserver {
   }
 
   private create(change: StyleCreateChange) {
-    this.container.emitter.sendEvent('token-created', {
-      style: change.style
-    });
+    if (change.style) {
+      const id = getIdFromChange(change);
+      this.tokens.set(id, {
+        id,
+        style: change.style,
+        name: change.style.name
+      });
+
+      this.container.emitter.sendEvent('token-created', serialize(this.tokens.get(id)));
+    }
   }
 
   private update(change: StylePropertyChange) {
-    this.container.emitter.sendEvent('token-updated', {
-      style: change.style
-    });
+    const id = getIdFromChange(change);
+
+    if (change.style && this.tokens.has(id)) {
+      this.tokens.set(id, {
+        ...this.tokens.get(id),
+        style: change.style
+      });
+
+      this.container.emitter.sendEvent('token-updated', serialize(this.tokens.get(id)));
+    }
   }
 
   private delete(change: StyleDeleteChange) {
-    this.container.emitter.sendEvent('token-deleted', {
-      style: change.style
-    });
+    const id = getIdFromChange(change);
+
+    if (this.tokens.has(id)) {
+      this.tokens.delete(id);
+      this.container.emitter.sendEvent('token-deleted', id);
+    }
   }
 }

@@ -15,6 +15,8 @@ importers:
       '@swc-node/jest': ^1.6.2
       '@swc/cli': ^0.1.62
       '@swc/core': ^1.3.35
+      '@theemo/core': ^0.0.1
+      '@theemo/figma-shared': '*'
       '@types/jest': ^29.4.0
       chokidar-cli: ^3.0.0
       colord: ^2.9.3
@@ -28,6 +30,8 @@ importers:
       '@swc-node/jest': 1.6.2_5l6o7hpeklex5q2il47wwacb4e
       '@swc/cli': 0.1.62_@swc+core@1.3.35
       '@swc/core': 1.3.35
+      '@theemo/core': 0.0.1
+      '@theemo/figma-shared': link:../shared
       '@types/jest': 29.4.0
       chokidar-cli: 3.0.0
       colord: 2.9.3
@@ -36,10 +40,31 @@ importers:
       tslib: 2.5.0
       typescript: 4.9.5
 
+  shared:
+    specifiers:
+      '@figma/plugin-typings': ^1.58.0
+      '@swc/cli': ^0.1.62
+      '@swc/core': ^1.3.35
+      '@theemo/core': ^0.0.1
+      chokidar-cli: ^3.0.0
+      figma-api-stub: ^0.0.56
+      tslib: ^2.5.0
+      typescript: ^4.9.5
+    devDependencies:
+      '@figma/plugin-typings': 1.58.0
+      '@swc/cli': 0.1.62_@swc+core@1.3.35
+      '@swc/core': 1.3.35
+      '@theemo/core': 0.0.1
+      chokidar-cli: 3.0.0
+      figma-api-stub: 0.0.56
+      tslib: 2.5.0
+      typescript: 4.9.5
+
   ui:
     specifiers:
       '@figma/plugin-typings': ^1.58.0
       '@sveltejs/vite-plugin-svelte': ^2.0.2
+      '@theemo/figma-shared': '*'
       '@tsconfig/svelte': ^3.0.0
       colord: ^2.9.3
       cssnano: ^5.1.15
@@ -57,6 +82,7 @@ importers:
     devDependencies:
       '@figma/plugin-typings': 1.58.0
       '@sveltejs/vite-plugin-svelte': 2.0.2_svelte@3.55.1+vite@4.1.1
+      '@theemo/figma-shared': link:../shared
       '@tsconfig/svelte': 3.0.0
       colord: 2.9.3
       cssnano: 5.1.15_postcss@8.4.21
@@ -1275,6 +1301,10 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       defer-to-connect: 2.0.1
+    dev: true
+
+  /@theemo/core/0.0.1:
+    resolution: {integrity: sha512-oWwt3xVlTpt331RhmTSUTlOMe7YoRMkw7Uaz8f6m9uVWrk3nZC/3BhGYCGcHqhLkNH6s43AvVJo1x0V4N4poJQ==}
     dev: true
 
   /@tokenizer/token/0.3.0:
