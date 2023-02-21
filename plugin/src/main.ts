@@ -4,7 +4,7 @@ import Container from './container/index';
 import TokenObserver from './token-observer';
 
 figma.showUI(__html__, {
-  width: 380,
+  width: 540,
   height: 350,
   themeColors: true
 });

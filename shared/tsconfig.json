@@ -21,21 +21,6 @@
     "esModuleInterop": true,
     "inlineSourceMap": false,
     "baseUrl": ".",
-    "paths": {
-      "*": [
-        "../types/*",
-        "../"
-      ]
-    },
-    "rootDir": "../"
-  },
-  "include": [
-    "src/",
-    "tests/"
-  ],
-  "references": [
-    {
-      "path": "../shared"
-    }
-  ]
+    "composite": true
+  }
 }
