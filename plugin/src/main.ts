@@ -1,7 +1,8 @@
 import { canHandleNode } from './nodes/utils';
 import { RefNode } from './nodes/types';
 import Container from './container/index';
-import TokenObserver from './token-observer';
+import { Tokens } from './tokens';
+import { Themes } from './themes';
 
 figma.showUI(__html__, {
   width: 540,
@@ -17,8 +18,10 @@ const emitter = container.emitter;
 commander.run('migrate');
 commander.run('read-settings');
 
-// observe styles and tokens
-new TokenObserver(container);
+// contexts
+new Tokens(container);
+new Themes(container);
+
 
 // handle selection
 handleSelection(figma.currentPage.selection);

@@ -1,35 +1,10 @@
-import Container from './container/index';
+import Container from '../container';
 import { Token } from '@theemo/figma-shared';
+import { getIdFromChange, serialize } from './utils';
 
 type TokenMap = Map<string, Token>;
 
-const SKIPPED_SERIALIZATION_FIELDS = ['consumers'];
-
-function serialize(object: Object) {
-  const ret = {};
-
-  for (const prop in object) {
-    if (SKIPPED_SERIALIZATION_FIELDS.indexOf(prop) !== -1) {
-      continue;
-    }
-
-    if (typeof object[prop] === 'object') {
-      ret[prop] = serialize(object[prop]);
-    } else {
-      ret[prop] = object[prop];
-    }
-  }
-
-  return ret;
-}
-
-function getIdFromChange(change: StyleCreateChange | StylePropertyChange | StyleDeleteChange) {
-  const { id } = change;
-  const parts = id.split(',');
-  return `${parts[0]},`;
-}
-
-export default class TokenObserver {
+export class Tokens {
 
   private static NAMESPACE = 'theemo';
   private tokens: TokenMap = new Map();

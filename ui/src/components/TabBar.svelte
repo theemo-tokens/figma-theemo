@@ -28,6 +28,12 @@
   <span
     class="tab"
     style="margin-left: auto;"
+    on:click={() => section.set('theme')}
+    class:active={$section === 'theme'}>Theme</span
+  >
+
+  <span
+    class="tab"
     on:click={() => section.set('settings')}
     class:active={$section === 'settings'}
   >

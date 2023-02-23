@@ -56,7 +56,7 @@ export default class Commander {
     this.listen();
   }
 
-  private registerCommand(command: Command) {
+  registerCommand(command: Command) {
     this.commands.set(command.NAME, command);
   }
 
