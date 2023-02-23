@@ -4,6 +4,7 @@
   import TabBar from './components/TabBar.svelte';
   import Selection from './sections/Selection.svelte';
   import Tokens from './sections/Tokens.svelte';
+  import Theme from './sections/Theme.svelte';
   import { get } from 'svelte/store';
 
   setContext('messenger', get(messenger));
@@ -21,6 +22,8 @@
   <Selection />
 {:else if activeSection === 'tokens'}
   <Tokens />
+{:else if activeSection === 'theme'}
+  <Theme />
 {/if}
 
 <style>

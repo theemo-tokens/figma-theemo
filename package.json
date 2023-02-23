@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "turbo": "^1.7.4"
+  },
+  "dependencies": {
+    "@theemo/core": "^0.0.1"
   }
 }
