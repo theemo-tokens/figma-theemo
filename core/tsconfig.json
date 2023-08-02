@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "strict": true,
+    "esModuleInterop": true,
+    "inlineSourceMap": false,
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@figma"
+    ],
+  }
+}

@@ -1,0 +1,4 @@
+packages:
+  - 'core/'
+  - 'plugin/'
+  - 'ui/'

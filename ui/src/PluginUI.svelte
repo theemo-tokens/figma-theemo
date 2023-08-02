@@ -1,0 +1,62 @@
+<script>
+  import { section } from './ui';
+  import TabBar from './components/TabBar.svelte';
+  import TabItem from './components/TabItem.svelte';
+  import Selection from './sections/Selection.svelte';
+  import Settings from './sections/Settings.svelte';
+  import Contexts from './sections/Contexts.svelte';
+  import Migration from './sections/Migration.svelte';
+  import Tools from './sections/Tools.svelte';
+  import Styles from './sections/Styles.svelte';
+
+  import { Icon } from 'figma-plugin-ds-svelte';
+  import IconSettings from './assets/icons/settings.svg';
+</script>
+
+<TabBar>
+  <TabItem
+    activate={() => section.set('selection')}
+    active={$section === 'selection'}>Selection</TabItem
+  >
+
+  <TabItem activate={() => section.set('styles')} active={$section === 'styles'}
+    >Styles</TabItem
+  >
+
+  <TabItem activate={() => section.set('tools')} active={$section === 'tools'}
+    >Tools</TabItem
+  >
+
+  <TabItem
+    activate={() => section.set('contexts')}
+    active={$section === 'contexts'}>Contexts</TabItem
+  >
+
+  <TabItem
+    activate={() => section.set('migration')}
+    active={$section === 'migration'}>Migration</TabItem
+  >
+
+  <span style="margin-left: auto;" />
+
+  <TabItem
+    activate={() => section.set('settings')}
+    active={$section === 'settings'}
+  >
+    <Icon iconName={IconSettings} class="icon" />
+  </TabItem>
+</TabBar>
+
+{#if $section === 'selection'}
+  <Selection />
+{:else if $section === 'styles'}
+  <Styles />
+{:else if $section === 'tools'}
+  <Tools />
+{:else if $section === 'contexts'}
+  <Contexts />
+{:else if $section === 'migration'}
+  <Migration />
+{:else if $section === 'settings'}
+  <Settings />
+{/if}
