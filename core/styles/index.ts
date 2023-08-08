@@ -7,3 +7,20 @@ export interface StyleDescriptor {
   reference?: string;
   transforms?: Transforms;
 }
+
+export interface StyleConfig {
+  styleId: string;
+  /** Id of the referenced style */
+  referenceId: string;
+}
+
+export interface VariableConfig {
+  variableId: string;
+  modeId: string;
+  transforms: Transforms;
+}
+
+export interface Config {
+  styles: StyleConfig[];
+  variables: VariableConfig[];
+}

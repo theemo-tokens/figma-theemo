@@ -1,36 +1,33 @@
-import { Transforms } from '@theemo-figma/core/transforms';
-
-export interface StyleConfig {
-  id: string;
-  reference?: string; // style id
-  transforms?: Transforms;
-}
+import type { Config } from '@theemo-figma/core/styles/index';
 
 const CONFIG = '.theemo/config';
 
-function findStyle(name: string): GridStyle | undefined {
+function findStyle(): GridStyle | undefined {
   return figma.getLocalGridStyles().find(style => style.name === CONFIG);
 }
 
-function findOrCreateStyle(name: string) {
-  let style = findStyle(name);
+function findOrCreateStyle() {
+  let style = findStyle();
   if (!style) {
     style = figma.createGridStyle();
-    style.name = name;
+    style.name = CONFIG;
   }
   return style;
 }
 
-export function readConfig(): StyleConfig[] {
-  const refStore = findStyle(CONFIG);
+export function readConfig(): Config {
+  const refStore = findStyle();
   if (refStore) {
     return JSON.parse(refStore.description ?? {});
   }
 
-  return [];
+  return {
+    styles: [],
+    variables: []
+  };
 }
 
-export function storeConfig(config: StyleConfig[]) {
-  let refStore = findOrCreateStyle(CONFIG);
+export function storeConfig(config: Config) {
+  let refStore = findOrCreateStyle();
   refStore.description = JSON.stringify(config);
 }

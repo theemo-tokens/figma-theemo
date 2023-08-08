@@ -1,9 +1,10 @@
 import { Transforms } from '@theemo-figma/core/transforms';
-import { Events } from '@theemo-figma/core/styles/events';
+import { EventName } from '@theemo-figma/core/styles/events';
 import { filterObject, getIdFromChange } from './utils';
 import { serialize } from '../../utils';
 import Emitter from '../../infrastructure/emitter';
-import { StyleConfig, readConfig } from './store';
+import { readConfig } from './store';
+import { Config } from '@theemo-figma/core/styles';
 
 interface StyleDescriptor {
   id: string;
@@ -19,7 +20,7 @@ type StyleMap = Map<string, StyleDescriptor>;
 
 export class StylesObserver {
   private descriptors: StyleMap = new Map();
-  private config: StyleConfig[];
+  private config: Config;
 
   constructor(private emitter: Emitter) {
     figma.on('documentchange', this.listen.bind(this));
@@ -33,7 +34,7 @@ export class StylesObserver {
     const localStyles = [...figma.getLocalPaintStyles(), ...figma.getLocalEffectStyles(), ...figma.getLocalTextStyles()];
 
     for (const style of localStyles) {
-      const config = this.config.find(config => config.id === style.id) ?? {};
+      const config = this.config.styles.find(config => config.styleId === style.id) ?? {};
       this.descriptors.set(style.id, {
         id: style.id,
         name: style.name,
@@ -42,7 +43,7 @@ export class StylesObserver {
       });
     }
 
-    this.emitter.sendEvent(Events.Initiated, [...this.descriptors.values()].map(serialize));
+    this.emitter.sendEvent(EventName.StylesInitiated, [...this.descriptors.values()].map(serialize));
   }
 
   private listen(e: DocumentChangeEvent) {
@@ -70,7 +71,7 @@ export class StylesObserver {
         name: change.style.name
       });
 
-      this.emitter.sendEvent(Events.Created, this.serialize(id));
+      this.emitter.sendEvent(EventName.StyleCreated, this.serialize(id));
     }
   }
 
@@ -83,7 +84,7 @@ export class StylesObserver {
         style: change.style
       });
 
-      this.emitter.sendEvent(Events.Updated, this.serialize(id));
+      this.emitter.sendEvent(EventName.StyleUpdated, this.serialize(id));
     }
   }
 
@@ -92,7 +93,7 @@ export class StylesObserver {
 
     if (this.descriptors.has(id)) {
       this.descriptors.delete(id);
-      this.emitter.sendEvent(Events.Deleted, id);
+      this.emitter.sendEvent(EventName.StyleDeleted, id);
     }
   }
 

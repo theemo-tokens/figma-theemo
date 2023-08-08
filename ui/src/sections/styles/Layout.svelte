@@ -8,6 +8,12 @@
   import { Type } from 'figma-plugin-ds-svelte';
 
   let style: StyleDescriptor;
+
+  $: {
+    if (style && styles && styles.indexOf(style) === -1) {
+      style = undefined;
+    }
+  }
 </script>
 
 <div class="layout">

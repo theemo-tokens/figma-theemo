@@ -1,7 +1,7 @@
 import { get, writable, derived } from 'svelte/store';
 import { messenger } from '../../infrastructure';
-import { Events } from '@theemo-figma/core/styles/events';
-import type { StyleDescriptor } from '@theemo-figma/core/styles';
+import { EventName, type Events } from '@theemo-figma/core/styles/events';
+import { type Config, type StyleDescriptor } from '@theemo-figma/core/styles';
 
 const styles = writable<StyleDescriptor[]>([]);
 
@@ -9,19 +9,24 @@ export const colors = derived(styles, $styles => $styles.filter(desc => desc.sty
 export const texts = derived(styles, $styles => $styles.filter(desc => desc.style.type === 'TEXT'));
 export const effects = derived(styles, $styles => $styles.filter(desc => desc.style.type === 'EFFECT'));
 
+const config = writable<Config>({ styles: [], variables: []});
+
+export const references = derived(config, $config => $config.styles);
+export const variables = derived(config, $config => $config.variables);
+
 function findIndex(id: string) {
   return get(styles).findIndex(token => token.id === id);
 }
 
-messenger.addListener(Events.Initiated, (initialStyles: StyleDescriptor[]) => {
+messenger.addListener(EventName.StylesInitiated, (initialStyles: StyleDescriptor[]) => {
   styles.set(initialStyles);
 });
 
-messenger.addListener(Events.Created, (style: StyleDescriptor) => {
+messenger.addListener(EventName.StyleCreated, (style: StyleDescriptor) => {
   styles.set([...get(styles), style]);
 });
 
-messenger.addListener(Events.Updated, (style: StyleDescriptor) => {
+messenger.addListener(EventName.StyleUpdated, (style: StyleDescriptor) => {
   const index = findIndex(style.id);
   
   if (index !== -1) {
@@ -31,7 +36,7 @@ messenger.addListener(Events.Updated, (style: StyleDescriptor) => {
   }
 });
 
-messenger.addListener(Events.Deleted, (id: string) => {
+messenger.addListener(EventName.StyleDeleted, (id: string) => {
   const index = findIndex(id);
 
   if (index !== -1) {
@@ -39,6 +44,10 @@ messenger.addListener(Events.Deleted, (id: string) => {
     updated.splice(index, 1);
     styles.set(updated);
   }
+});
+
+messenger.addListener(EventName.ConfigArrived, (data: Events[EventName.ConfigArrived]) => {
+  config.set(data);
 });
 
 export function getColorAsCSS(style: PaintStyle) {
@@ -51,9 +60,4 @@ export function getColorAsCSS(style: PaintStyle) {
       color.b * 255
     }${opacity})`;
   }
-}
-
-export function getModeValueAsCss(value: RGB | RGBA) {
-  const alpha = (value as RGBA).a ? `, ${(value as RGBA).a}` : '';
-  return `rgb(${value.r * 255}, ${value.g * 255}, ${value.b * 255}${alpha})`;
 }

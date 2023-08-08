@@ -5,10 +5,10 @@
   import TabBar from '../components/TabBar.svelte';
   import TabItem from '../components/TabItem.svelte';
   import Color from './styles/Color.svelte';
-  import Effect from './styles/Effect.svelte';
-  import Text from './styles/Text.svelte';
+  import EffectAndText from './styles/EffectAndText.svelte';
   import Layout from './styles/Layout.svelte';
   import { colors, texts, effects } from './styles/data';
+  import { CommandName } from '@theemo-figma/core/styles/commands';
 
   let type = 'colors';
   $: styles = getFromType(type);
@@ -29,6 +29,7 @@
 
   messenger.send('collect-collections');
   messenger.send('collect-variables');
+  messenger.send(CommandName.ReadConfig);
 </script>
 
 <TabBar>
@@ -50,9 +51,9 @@
     {#if type === 'colors'}
       <Color {style} />
     {:else if type === 'texts'}
-      <Text {style} />
+      <EffectAndText {style} referenceStyles={$texts} />
     {:else if type === 'effects'}
-      <Effect {style} />
+      <EffectAndText {style} referenceStyles={$effects} />
     {/if}
   </Layout>
 </Section>

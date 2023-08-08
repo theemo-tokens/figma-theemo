@@ -2,6 +2,11 @@
   import { Input } from 'figma-plugin-ds-svelte';
   import VariablePill from './VariablePill.svelte';
   import { findCollection, getValue, isAlias } from './variables';
+  import { variables } from './data';
+  import type { PaintTransforms } from '@theemo-figma/core/transforms';
+  import { messenger } from '../../infrastructure';
+  import { CommandName } from '@theemo-figma/core/styles/commands';
+  import type { VariableConfig } from '@theemo-figma/core/styles/index';
 
   export let mode: {
     modeId: string;
@@ -13,11 +18,20 @@
   $: name = collection.modes.length > 1 ? mode.name : 'Value';
   $: value = getValue(variable, mode.modeId);
 
+  let transformsConfig: VariableConfig =
+    $variables.find(
+      (varConfig) =>
+        varConfig.variableId === variable.id && varConfig.modeId === mode.modeId
+    ) ?? {};
+
+  $: transforms = transformsConfig.transforms ?? {};
+  console.log(transformsConfig, transforms, $variables, variable, mode);
+
   // transforms
-  $: hue = undefined;
-  $: saturation = undefined;
-  $: lightness = undefined;
-  $: opacity = undefined;
+  $: hue = transforms.hue;
+  $: saturation = transforms.saturation;
+  $: lightness = transforms.lightness;
+  $: opacity = transforms.opacity;
 
   function updateTransforms(prop: string) {
     return function (event: Event) {
@@ -26,21 +40,35 @@
 
       // let transforms = style.data.transforms;
 
-      // // udpate
-      // if (number) {
-      //   if (!transforms) {
-      //     transforms = {};
-      //   }
+      // udpate
+      if (number) {
+        if (!transforms) {
+          transforms = {};
+        }
 
-      //   transforms[prop] = number;
-      // }
+        transforms[prop] = number;
+      }
 
-      // // delete
-      // else if (transforms && transforms[prop] !== undefined) {
-      //   delete transforms[prop];
-      // }
+      // delete
+      else if (transforms && transforms[prop] !== undefined) {
+        delete transforms[prop];
+      }
 
-      // send('save-transforms', { transforms });
+      const transformsAvailable = Object.values(transforms).some(
+        (val) => val !== undefined
+      );
+      if (transformsAvailable) {
+        messenger.send(CommandName.SaveTransforms, {
+          variableId: variable.id,
+          modeId: mode.modeId,
+          transforms
+        });
+      } else {
+        messenger.send(CommandName.DeleteTransforms, {
+          variableId: variable.id,
+          modeId: mode.modeId
+        });
+      }
     };
   }
 

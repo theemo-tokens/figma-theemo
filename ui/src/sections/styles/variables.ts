@@ -6,14 +6,10 @@ export const variables = writable<Variable[]>([]);
 export const collections = writable<VariableCollection[]>([]);
 
 messenger.addListener('variables-collected', (payload: Variable[]) => {
-  console.log(payload);
-  
   variables.set(payload);
 });
 
 messenger.addListener('collections-collected', (payload: VariableCollection[]) => {
-  console.log(payload);
-
   collections.set(payload);
 });
 

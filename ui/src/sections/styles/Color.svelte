@@ -1,18 +1,8 @@
 <script lang="ts">
   import type { StyleDescriptor } from '@theemo-figma/core/styles/index';
-  import {
-    variables,
-    collections,
-    findVariableFromAlias,
-    findCollection
-  } from './variables';
-  import VariablePill from './VariablePill.svelte';
-  import VariableAlias from './VariablePill.svelte';
+  import { findVariableFromAlias, findCollection } from './variables';
   import Mode from './Mode.svelte';
   import VariableName from './VariableName.svelte';
-  // import { colord } from 'colord';
-  // import { getColorAsCSS } from './data';
-  // import Swatch from './Swatch.svelte';
 
   export let style: StyleDescriptor;
 

@@ -4,12 +4,20 @@
   export let select;
 
   import Listbox from 'makeup-listbox';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
 
   let list;
+  let listbox;
+
+  // $: {
+  //   if (items) {
+  //     console.log('items changed');
+  //     reset();
+  //   }
+  // }
 
   onMount(() => {
-    const listbox = new Listbox(list);
+    listbox = new Listbox(list);
 
     list.addEventListener('makeup-listbox-change', function (e) {
       const index = e.detail.optionIndex;
@@ -37,10 +45,16 @@
     //   console.log('activeDescendantInit', e);
     // });
   });
+
+  onDestroy(() => {
+    if (listbox) {
+      listbox.destroy();
+    }
+  });
 </script>
 
 <ul class="list" bind:this={list} tabindex="0" role="listbox">
-  {#each items as item}
+  {#each items ?? [] as item (item)}
     <li aria-selected={item === selection} role="option">
       <slot {item} />
     </li>
