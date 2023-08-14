@@ -49,7 +49,10 @@ export default class MigrateStylesCommand extends NodeCommand {
         const style = handler.styles[StyleTypes.Fill];
         if (style) {
           ref.set(style.to!.id, style.from!.id);
-          transforms.set(style.to!.name, style.transforms);
+
+          if (style.transforms && Object.keys(style.transforms).length > 0) {
+            transforms.set(style.to!.name, style.transforms);
+          }
         }
       }
 
@@ -57,7 +60,10 @@ export default class MigrateStylesCommand extends NodeCommand {
         const style = handler.styles[StyleTypes.Stroke];
         if (style) {
           ref.set(style.to!.id, style.from!.id);
-          transforms.set(style.to!.name, style.transforms);
+
+          if (style.transforms && Object.keys(style.transforms).length > 0) {
+            transforms.set(style.to!.name, style.transforms);
+          }
         }
       }
     }
@@ -175,17 +181,17 @@ export default class MigrateStylesCommand extends NodeCommand {
 
     if (fromVariable && toVariable) {
       // with a transform present, we will store it in our config
-      if (transforms.has(toStyle.name)) {
+      if (transforms.has(fromStyle.name)) {
         const contextPrefix = this.container.settings.get('context.prefix');
         const collection = findCollection(toVariable) as VariableCollection;
-        const modeId = this.getModeId(toStyle.name, collection, getContext(toStyle.name, contextPrefix));
+        const modeId = this.getModeId(fromStyle.name, collection, getContext(fromStyle.name, contextPrefix));
         const config = readConfig();
 
         config.variables.push({
-          variableId: toVariable.id,
+          variableId: fromVariable.id,
           modeId,
-          referenceId: fromVariable.id,
-          transforms: transforms.get(toStyle.name) as Transforms
+          referenceId: toVariable.id,
+          transforms: transforms.get(fromStyle.name) as Transforms
         });
 
         storeConfig(config);

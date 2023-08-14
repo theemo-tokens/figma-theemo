@@ -23,37 +23,30 @@ function isGradient(style: PaintStyle) {
   return style.paints.length > 1;
 }
 
-/**
- * Checks if all requirements are met, which are:
- * 
- * - if this style has a reference to another, is that referenced style already
- *   turned into a variable
- * - if this is a contextual style, does the rule above apply for the given contexts
- * 
- * @param style
- */
-function requirementsForMigrationAreMet(style: PaintStyle, container: Container, references: Map<string, string>, paintStyles: PaintStyle[]): boolean {
+function doVariablesForAllContextsExists(style: PaintStyle, container: Container, references: Map<string, string>, paintStyles: PaintStyle[]): boolean {
   const contextPrefix = container.settings.get('context.prefix');
 
-  // 1) When this is a contextual style, check if the requirements of the
-  //    contexts are met
-  if (isContextual(style.name, contextPrefix)) {
+  if (hasContexts(style, paintStyles, contextPrefix)) {
     // find contextual styles
     const contextualStyles = paintStyles.filter(paintStyle => paintStyle.name.startsWith(`${style.name}${contextPrefix}`) 
       && paintStyle.name !== style.name);
 
     // perform the check for each of them
-    return contextualStyles.every(contextualStyle => requirementsForMigrationAreMet(contextualStyle, container, references, paintStyles));
+    return contextualStyles.every(contextualStyle => doVariablesForReferencesAlreadyExist(contextualStyle, references, paintStyles));
   }
 
-  // 2) check if we found a reference and check if that reference has a variable assigned
+  // style not handled by theemo, keep migrating
+  return true;
+}
+
+function doVariablesForReferencesAlreadyExist(style: PaintStyle, references: Map<string, string>, paintStyles: PaintStyle[]): boolean {
   if (references.has(style.id)) {
     const referencedStyle = paintStyles.find((paintStyle) => paintStyle.id === references.get(style.id) as string);
 
     return Boolean(referencedStyle && hasBoundVariable(referencedStyle));
   }
 
-  // 3) Not handled by theemo before, it is good, keep migrating
+  // style not handled by theemo, keep migrating
   return true;
 }
 
@@ -66,24 +59,33 @@ export function getMigrationStyles(container: Container) {
   // we want to keep styles when ...
   return paintStyles.filter(style => (
     // ... they are not composites of multiple colors
-    // cannot migrate gradients to variables
+    //     cannot migrate gradients to variables
     !isGradient(style) &&
 
     // ... they still have configurations on nodes
-    stylesWithNodes.includes(style) 
-      ? true
+    stylesWithNodes.includes(style)
+      ? (
+        // ... in which case we want them to meet requirements for migration
+        doVariablesForReferencesAlreadyExist(style, references, paintStyles)
+      )
       : (
-        // ... they are not already assigned with a variable
-        // then they are considered migrated
-        !hasBoundVariable(style) &&
-    
-        (
-          // ... they are not contextual
-          !isContextual(style.name, contextPrefix) ||
+        // ... but they are a switch to contextual styles
+        hasContexts(style, paintStyles, contextPrefix)
+          ? (
+            // ... in which case we want them to meet requirements for migration
+            doVariablesForAllContextsExists(style, container, references, paintStyles)
+          )
+          : (
+            // ... when they neither have associated nodes nor are context
+            //     switches, we want to keep migrating styles when ...
 
-          // ... but instead their "parent" who has those contexts
-          hasContexts(style, paintStyles, contextPrefix)
-        )
+            // ... they are not already assigned with a variable
+            //     then they are considered migrated
+            !hasBoundVariable(style) &&
+
+            // ... they are not contextual styles (which is handled above)
+            !isContextual(style.name, contextPrefix)
+          )
       )
   ));
 }

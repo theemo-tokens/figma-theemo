@@ -46,21 +46,20 @@
 
   <table class="table">
     <tr>
-      <th style="width: 24px;" />
       <th>Name</th>
       <th>Associated Styles</th>
     </tr>
 
     {#each nodes as node}
       <tr>
-        <td
-          ><IconButton
+        <td class="name">
+          <IconButton
             class="icon-locate"
             on:click={() => selectNode(node.id)}
             iconName={IconLocate}>Select</IconButton
-          ></td
-        >
-        <td>{node.name}</td>
+          >
+          {node.name}
+        </td>
         <td>{node.styles.join(', ')}</td>
       </tr>
     {/each}
@@ -74,6 +73,11 @@
 
   .table th {
     text-align: left;
+  }
+
+  .name {
+    display: flex;
+    align-items: center;
   }
 
   :global(.icon-locate) {
