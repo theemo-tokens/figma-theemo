@@ -1,18 +1,9 @@
-import { Transforms } from '@theemo-figma/core/transforms';
 import { EventName } from '@theemo-figma/core/styles/events';
 import { filterObject, getIdFromChange } from './utils';
 import { serialize } from '../../utils';
 import Emitter from '../../infrastructure/emitter';
 import { readConfig } from './store';
-import { Config } from '@theemo-figma/core/styles';
-
-interface StyleDescriptor {
-  id: string;
-  name: string;
-  style: BaseStyle;
-  reference?: string;
-  transforms?: Transforms;
-}
+import { Config, StyleDescriptor } from '@theemo-figma/core/styles';
 
 const SKIPPED_SERIALIZATION_FIELDS = ['consumers'];
 
@@ -67,7 +58,7 @@ export class StylesObserver {
       const id = getIdFromChange(change);
       this.descriptors.set(id, {
         id,
-        style: change.style,
+        style: change.style as PaintStyle | EffectStyle | TextStyle,
         name: change.style.name
       });
 
@@ -81,7 +72,7 @@ export class StylesObserver {
     if (change.style && this.descriptors.has(id)) {
       this.descriptors.set(id, {
         ...this.descriptors.get(id) as StyleDescriptor,
-        style: change.style
+        style: change.style as PaintStyle | EffectStyle | TextStyle
       });
 
       this.emitter.sendEvent(EventName.StyleUpdated, this.serialize(id));

@@ -59,6 +59,6 @@ export default class ReferencesManager {
       styles.push(...styleIds.map(styleId => figma.getStyleById(styleId as string) as PaintStyle));
     }
 
-    return styles;
+    return styles.filter(Boolean);
   }
 }

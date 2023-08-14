@@ -13,6 +13,10 @@ messenger.addListener('collections-collected', (payload: VariableCollection[]) =
   collections.set(payload);
 });
 
+export function findVariableById(id: string) {
+  return get(variables).find(variable => variable.id === id);
+}
+
 export function findVariableFromAlias(alias: VariableAlias) {
   return get(variables).find((variable) => variable.id === alias.id);
 }

@@ -20,6 +20,8 @@ import CollectStatsCommand from './commands/collect-stats';
 import Emitter from '../../infrastructure/emitter';
 import ReadSettingsCommand from './commands/read-settings';
 import SaveSettingsCommand from './commands/save-settings';
+import CollectNodesCommand from './commands/collect-nodes';
+import SelectNodeCommand from './commands/select-node';
 
 export function setupNode(infrastructure: Infrastructure) {
   const container = new Container(infrastructure);
@@ -45,6 +47,8 @@ function setupCommands({ commander }: Infrastructure, container: Container) {
   commander.registerCommand(new SelectContextCommand(container));
   commander.registerCommand(new ImportCommand(container));
   commander.registerCommand(new CollectStatsCommand(container));
+  commander.registerCommand(new CollectNodesCommand(container));
+  commander.registerCommand(new SelectNodeCommand(container));
 
   // migrate styles
   commander.registerCommand(new CollectMigrationStylesCommand(container));

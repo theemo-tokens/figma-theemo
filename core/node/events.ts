@@ -30,3 +30,18 @@ export interface StatsPayload {
   effect: number;
   contexts: number;
 }
+
+export enum StyleTypes {
+  Fill = 'fill',
+  Stroke = 'stroke',
+  Effect = 'effect',
+  Text = 'text'
+}
+
+export interface NodesWithStyles {
+  id: string;
+  name: string;
+  styles: StyleTypes[]
+}
+
+export type NodesPayload = NodesWithStyles[];

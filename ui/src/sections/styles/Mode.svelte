@@ -2,8 +2,7 @@
   import { Input } from 'figma-plugin-ds-svelte';
   import VariablePill from './VariablePill.svelte';
   import { findCollection, getValue, isAlias } from './variables';
-  import { variables } from './data';
-  import type { PaintTransforms } from '@theemo-figma/core/transforms';
+  import { hasReference, variables } from './data';
   import { messenger } from '../../infrastructure';
   import { CommandName } from '@theemo-figma/core/styles/commands';
   import type { VariableConfig } from '@theemo-figma/core/styles/index';
@@ -25,7 +24,6 @@
     ) ?? {};
 
   $: transforms = transformsConfig.transforms ?? {};
-  console.log(transformsConfig, transforms, $variables, variable, mode);
 
   // transforms
   $: hue = transforms.hue;
@@ -93,7 +91,7 @@
     <VariablePill {variable} mode={mode.modeId} />
   </p>
 
-  {#if isAlias(value)}
+  {#if isAlias(value) || hasReference(variable, mode.modeId)}
     <div class="input-group">
       <Input
         placeholder="Hue"

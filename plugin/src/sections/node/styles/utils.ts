@@ -72,7 +72,11 @@ export function applyPaintTransforms(paint: SolidPaint, transforms: PaintTransfo
 }
 
 export function copyEffectStyle(from: EffectStyle, to: EffectStyle) {
-  to.effects = from.effects;
+  if (Array.isArray(from.effects)) {
+    to.effects = from.effects;
+  } else if (typeof from.effects === 'object') {
+    to.effects = Object.values(from.effects);
+  }
 }
 
 export function copyGridStyle(from: GridStyle, to: GridStyle) {

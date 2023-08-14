@@ -6,6 +6,9 @@ import { getContext, getContextFreeName, getMigrationStyles, hasContexts, isCont
 import { MigrateStylesPayload } from '@theemo-figma/core/node/commands';
 import { filterStyles } from '@theemo-figma/core/migrate';
 import NodeCommand from './command';
+import { readConfig, storeConfig } from '../../styles/store';
+import { Transforms } from '@theemo-figma/core/transforms';
+import { findCollection } from '../../../variables';
 
 function getVariableNameFromStyle(style: PaintStyle, prefix: string) {
   return isContextual(style.name, prefix) ? getContextFreeName(style.name, prefix) : style.name;
@@ -17,7 +20,7 @@ export default class MigrateStylesCommand extends NodeCommand {
   execute(data: MigrateStylesPayload) {
     const styles = this.findStyles(data.searchPhrase);
     const nodes = this.findNodes(styles);
-    const references = this.compileReferences();
+    const [references, transforms] = this.compileReferencesAndTransforms();
     const missingReferences = this.findMissingReferences(styles, references);
 
     if (missingReferences.length > 0) {
@@ -25,15 +28,15 @@ export default class MigrateStylesCommand extends NodeCommand {
     }
 
     this.createVariablesFromStyles(data.collection, styles);
-    this.referenceVariables(references);
+    this.referenceVariables(references, transforms);
     this.connectStylesWithVariable(styles);
-    this.migrateTransforms(nodes);
     this.cleanupNodes(nodes);
 
     this.emitter.sendEvent('migration-styles-collected', getMigrationStyles(this.container).map(serialize));
   }
 
-  compileReferences() {
+  compileReferencesAndTransforms(): [Map<string, string>, Map<string, Transforms>] {
+    const transforms = new Map<string, object>();
     const ref = new Map<string, string>();
     const nodes = [...this.container.references.readNodes()]
       .map(nodeId => figma.getNodeById(nodeId))
@@ -46,6 +49,7 @@ export default class MigrateStylesCommand extends NodeCommand {
         const style = handler.styles[StyleTypes.Fill];
         if (style) {
           ref.set(style.to!.id, style.from!.id);
+          transforms.set(style.to!.name, style.transforms);
         }
       }
 
@@ -53,11 +57,12 @@ export default class MigrateStylesCommand extends NodeCommand {
         const style = handler.styles[StyleTypes.Stroke];
         if (style) {
           ref.set(style.to!.id, style.from!.id);
+          transforms.set(style.to!.name, style.transforms);
         }
       }
     }
 
-    return ref;
+    return [ref, transforms];
   }
 
   findStyles(searchPhrase: string) {
@@ -71,8 +76,6 @@ export default class MigrateStylesCommand extends NodeCommand {
       return style.consumers.flatMap(consumer => consumer.node)
     }).filter(node => nodesWithReferences.has(node.id));
   }
-
-  findTransforms() {}
 
   findMissingReferences(styles: PaintStyle[], references: Map<string, string>) {
     const allStyles = figma.getLocalPaintStyles();
@@ -101,10 +104,6 @@ export default class MigrateStylesCommand extends NodeCommand {
     return figma.variables.getLocalVariables().find(variable => variable.name === name);
   }
 
-  findVariableCollectionById(id: string) {
-    return figma.variables.getLocalVariableCollections().find(coll => coll.id === id) as VariableCollection;
-  }
-
   createVariablesFromStyles(collectionId: string, styles: PaintStyle[]) {
     const contextPrefix = this.container.settings.get('context.prefix');
     const localStyles = figma.getLocalPaintStyles();
@@ -117,24 +116,27 @@ export default class MigrateStylesCommand extends NodeCommand {
     }
   }
 
+  private getModeId(name: string, collection: VariableCollection, context?: string) {
+    const contextPrefix = this.container.settings.get('context.prefix');
+
+    if (!isContextual(name, contextPrefix)) {
+      return collection.defaultModeId;
+    }
+
+    const foundMode = collection.modes.find(mode => mode.name === context);
+    if (foundMode) {
+      return foundMode.modeId;
+    }
+
+    return collection.addMode(context as string);
+  }
+
   createVariable(collectionId: string, style: PaintStyle) {
     const contextPrefix = this.container.settings.get('context.prefix');
 
     // get started creating the variables
-    const getModeId = (name: string, collection: VariableCollection, context?: string) => {
-      if (!isContextual(name, contextPrefix)) {
-        return collection.defaultModeId;
-      }
-
-      const foundMode = collection.modes.find(mode => mode.name === context);
-      if (foundMode) {
-        return foundMode.modeId;
-      }
-
-      return collection.addMode(context as string);
-    }
-    const collection = this.findVariableCollectionById(collectionId);
-    const modeId = getModeId(style.name, collection, getContext(style.name, contextPrefix));
+    const collection = figma.variables.getLocalVariableCollections().find(coll => coll.id === collectionId) as VariableCollection;;
+    const modeId = this.getModeId(style.name, collection, getContext(style.name, contextPrefix));
     const name = getVariableNameFromStyle(style, contextPrefix);
 
     let variable = this.findVariableByName(name);
@@ -150,9 +152,9 @@ export default class MigrateStylesCommand extends NodeCommand {
     variable.setValueForMode(modeId, (style.paints[0] as SolidPaint).color);
   }
 
-  referenceVariables(references: Map<string, string>) {
+  referenceVariables(references: Map<string, string>, transforms: Map<string, object>) {
     for (const [from, to] of references.entries()) {
-      this.referenceVariable(from, to);
+      this.referenceVariable(from, to, transforms);
     }
   }
 
@@ -164,7 +166,7 @@ export default class MigrateStylesCommand extends NodeCommand {
    * @param from style id
    * @param to style id
    */
-  referenceVariable(from: string, to: string) {
+  referenceVariable(from: string, to: string, transforms: Map<string, Transforms>) {
     const fromStyle = figma.getStyleById(from) as PaintStyle;
     const toStyle = figma.getStyleById(to) as PaintStyle;
 
@@ -172,9 +174,29 @@ export default class MigrateStylesCommand extends NodeCommand {
     const toVariable = this.findVariableByName(toStyle.name);
 
     if (fromVariable && toVariable) {
-      const collection = this.findVariableCollectionById(fromVariable.variableCollectionId);
-      const alias = figma.variables.createVariableAlias(toVariable);
-      fromVariable.setValueForMode(collection.modes[0].modeId, alias);
+      // with a transform present, we will store it in our config
+      if (transforms.has(toStyle.name)) {
+        const contextPrefix = this.container.settings.get('context.prefix');
+        const collection = findCollection(toVariable) as VariableCollection;
+        const modeId = this.getModeId(toStyle.name, collection, getContext(toStyle.name, contextPrefix));
+        const config = readConfig();
+
+        config.variables.push({
+          variableId: toVariable.id,
+          modeId,
+          referenceId: fromVariable.id,
+          transforms: transforms.get(toStyle.name) as Transforms
+        });
+
+        storeConfig(config);
+      } 
+      
+      // without, we can use figma's variable alias
+      else {
+        const collection = findCollection(fromVariable) as VariableCollection;
+        const alias = figma.variables.createVariableAlias(toVariable);
+        fromVariable.setValueForMode(collection.modes[0].modeId, alias);
+      }
     }
   }
 

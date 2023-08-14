@@ -11,6 +11,7 @@
 
   import { Icon } from 'figma-plugin-ds-svelte';
   import IconSettings from './assets/icons/settings.svg';
+  import MigrationDashboard from './sections/MigrationDashboard.svelte';
 </script>
 
 <TabBar>
@@ -33,8 +34,15 @@
   >
 
   <TabItem
+    activate={() => section.set('migration-dashboard')}
+    active={$section === 'migration-dashboard'}
+  >
+    Migration
+  </TabItem>
+
+  <TabItem
     activate={() => section.set('migration')}
-    active={$section === 'migration'}>Migration</TabItem
+    active={$section === 'migration'}>Migrate Styles</TabItem
   >
 
   <span style="margin-left: auto;" />
@@ -57,6 +65,8 @@
   <Contexts />
 {:else if $section === 'migration'}
   <Migration />
+{:else if $section === 'migration-dashboard'}
+  <MigrationDashboard />
 {:else if $section === 'settings'}
   <Settings />
 {/if}

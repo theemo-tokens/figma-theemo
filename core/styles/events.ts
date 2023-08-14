@@ -1,4 +1,4 @@
-import { Config } from './index';
+import { Config, StyleDescriptor } from './index';
 
 export enum EventName {
   StylesInitiated = 'styles.styles-initiated',
@@ -9,5 +9,8 @@ export enum EventName {
 }
 
 export interface Events {
+  [EventName.StyleCreated]: StyleDescriptor;
+  [EventName.StyleUpdated]: StyleDescriptor;
+  [EventName.StyleDeleted]: StyleDescriptor;
   [EventName.ConfigArrived]: Config;
 }

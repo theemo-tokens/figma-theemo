@@ -61,3 +61,11 @@ export function getColorAsCSS(style: PaintStyle) {
     }${opacity})`;
   }
 }
+
+export function hasReference(variable: Variable, mode?: string) {
+  return get(variables).find(conf => conf.variableId === variable.id && conf.modeId === mode);
+}
+
+export function getVariableConfig(variable: Variable, mode?: string) {
+  return get(variables).find(conf => conf.variableId === variable.id && conf.modeId === mode);
+}

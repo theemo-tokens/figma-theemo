@@ -5,11 +5,13 @@ import ReadConfigCommand from './commands/read-config';
 import SaveTransformsCommand from './commands/save-transforms';
 import UnlinkReferenceCommand from './commands/unlink-reference';
 import { StylesObserver } from './observer';
+import { listen } from './referencer';
 
 export function setupStyles(infrastructure: Infrastructure) {
   new StylesObserver(infrastructure.emitter);
 
   setupCommands(infrastructure);
+  listen(infrastructure.emitter);
 }
 
 function setupCommands({ commander }: Infrastructure) {

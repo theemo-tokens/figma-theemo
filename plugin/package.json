@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@theemo-figma/core": "workspace:../core",
-    "color-converter": "1.4.1"
+    "color-converter": "1.4.1",
+    "colord": "^2.9.3"
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.72.0",

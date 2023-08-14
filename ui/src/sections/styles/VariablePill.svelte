@@ -1,10 +1,11 @@
 <script lang="ts">
   import VariableName from './VariableName.svelte';
+  import { getVariableConfig, hasReference } from './data';
   import {
     findColorForVariable,
+    findVariableById,
     findVariableFromAlias,
     getValue,
-    getValueAsHex,
     isAlias
   } from './variables';
 
@@ -13,6 +14,7 @@
 
   $: value = getValue(variable, mode);
   $: color = findColorForVariable(variable, mode);
+  $: config = getVariableConfig(variable, mode);
 </script>
 
 <span class="variable">
@@ -20,6 +22,8 @@
 
   {#if isAlias(value)}
     <VariableName variable={findVariableFromAlias(value)} />
+  {:else if hasReference(variable, mode)}
+    <VariableName variable={findVariableById(config.referenceId)} />
   {:else}
     {color}
   {/if}

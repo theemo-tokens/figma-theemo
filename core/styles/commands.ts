@@ -1,4 +1,5 @@
 import { Transforms } from '../transforms';
+import { VariableConfig } from './index';
 
 export enum CommandName {
   SaveTransforms = 'styles.save-transforms',
@@ -9,15 +10,8 @@ export enum CommandName {
 }
 
 export interface Commands {
-  [CommandName.SaveTransforms]: {
-    variableId: string;
-    modeId: string;
-    transforms: Transforms;
-  };
-  [CommandName.DeleteTransforms]: {
-    variableId: string;
-    modeId: string;
-  };
+  [CommandName.SaveTransforms]: Pick<VariableConfig, 'variableId' | 'modeId' | 'transforms'>;
+  [CommandName.DeleteTransforms]: Pick<VariableConfig, 'variableId' | 'modeId'>;
   [CommandName.ReadConfig]: undefined;
   [CommandName.LinkReference]: {
     styleId: string;

@@ -17,6 +17,8 @@ export interface StyleConfig {
 export interface VariableConfig {
   variableId: string;
   modeId: string;
+  /** Id of the referenced variable */
+  referenceId: string;
   transforms: Transforms;
 }
 
