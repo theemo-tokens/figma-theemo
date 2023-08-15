@@ -1,4 +1,5 @@
 <script>
+  import { messenger } from '../infrastructure';
   import Section from '../components/Section.svelte';
   import TabBar from '../components/TabBar.svelte';
   import TabItem from '../components/TabItem.svelte';
@@ -9,6 +10,8 @@
     $styles && Object.values($styles).length > 0
       ? Object.values($styles)[0]
       : undefined;
+
+  messenger.send('read-selection');
 </script>
 
 {#if $styles}

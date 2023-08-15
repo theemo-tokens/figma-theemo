@@ -12,15 +12,30 @@ export function getContext(name: string, prefix: string) {
 }
 
 export function getContextFreeName(name: string, prefix: string) {
-  return name.substring(0, name.indexOf(prefix));
+  return name.includes(prefix) ? name.substring(0, name.indexOf(prefix)) : name;
 }
 
 export function hasContexts(style: PaintStyle, styles: PaintStyle[], contextPrefix: string) {
-  return styles.some(lookupStyle => lookupStyle.name.includes(`${style.name}${contextPrefix}`));
+  return getContexts(style, styles, contextPrefix).length > 0;
+}
+
+export function getContexts(style: PaintStyle, styles: PaintStyle[], contextPrefix: string) {
+  return styles.filter(lookupStyle => lookupStyle.name.includes(`${style.name}${contextPrefix}`));
 }
 
 function isGradient(style: PaintStyle) {
   return style.paints.length > 1;
+}
+
+function doVariablesForReferencesAlreadyExist(style: PaintStyle, references: Map<string, string>, paintStyles: PaintStyle[]): boolean {
+  if (references.has(style.id)) {
+    const referencedStyle = paintStyles.find((paintStyle) => paintStyle.id === references.get(style.id) as string);
+
+    return Boolean(referencedStyle && hasBoundVariable(referencedStyle));
+  }
+
+  // style not handled by theemo, keep migrating
+  return true;
 }
 
 function doVariablesForAllContextsExists(style: PaintStyle, container: Container, references: Map<string, string>, paintStyles: PaintStyle[]): boolean {
@@ -33,17 +48,6 @@ function doVariablesForAllContextsExists(style: PaintStyle, container: Container
 
     // perform the check for each of them
     return contextualStyles.every(contextualStyle => doVariablesForReferencesAlreadyExist(contextualStyle, references, paintStyles));
-  }
-
-  // style not handled by theemo, keep migrating
-  return true;
-}
-
-function doVariablesForReferencesAlreadyExist(style: PaintStyle, references: Map<string, string>, paintStyles: PaintStyle[]): boolean {
-  if (references.has(style.id)) {
-    const referencedStyle = paintStyles.find((paintStyle) => paintStyle.id === references.get(style.id) as string);
-
-    return Boolean(referencedStyle && hasBoundVariable(referencedStyle));
   }
 
   // style not handled by theemo, keep migrating
@@ -63,7 +67,7 @@ export function getMigrationStyles(container: Container) {
     !isGradient(style) &&
 
     // ... they still have configurations on nodes
-    stylesWithNodes.includes(style)
+    stylesWithNodes.includes(style) && !isContextual(style.name, contextPrefix)
       ? (
         // ... in which case we want them to meet requirements for migration
         doVariablesForReferencesAlreadyExist(style, references, paintStyles)

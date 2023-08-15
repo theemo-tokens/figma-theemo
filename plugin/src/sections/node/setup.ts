@@ -1,6 +1,5 @@
 import Container from './container';
-import { canHandleNode } from './utils';
-import { RefNode } from './types';
+
 import { Infrastructure } from '../../infrastructure';
 import CreateReferenceCommand from './commands/create-reference';
 import LinkOriginCommand from './commands/link-origin';
@@ -22,6 +21,8 @@ import ReadSettingsCommand from './commands/read-settings';
 import SaveSettingsCommand from './commands/save-settings';
 import CollectNodesCommand from './commands/collect-nodes';
 import SelectNodeCommand from './commands/select-node';
+import { handleSelection } from './selection';
+import ReadSelectionCommand from './commands/read-selection';
 
 export function setupNode(infrastructure: Infrastructure) {
   const container = new Container(infrastructure);
@@ -49,6 +50,7 @@ function setupCommands({ commander }: Infrastructure, container: Container) {
   commander.registerCommand(new CollectStatsCommand(container));
   commander.registerCommand(new CollectNodesCommand(container));
   commander.registerCommand(new SelectNodeCommand(container));
+  commander.registerCommand(new ReadSelectionCommand(container));
 
   // migrate styles
   commander.registerCommand(new CollectMigrationStylesCommand(container));
@@ -70,14 +72,4 @@ function setupSelection({ emitter }: Infrastructure, container: Container) {
       emitter.sendEvent('selection-changed', null);
     }
   });
-}
-
-function handleSelection(selection: readonly SceneNode[], container: Container, emitter: Emitter) {
-  if (selection.length > 0 && canHandleNode(selection[0])) {
-    const manager = container.registry.get(selection[0] as RefNode);
-    emitter.sendEvent('selection-changed', manager.data);
-    return true;
-  } else {
-    return false;
-  }
 }

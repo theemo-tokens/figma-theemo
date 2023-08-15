@@ -1,7 +1,7 @@
 import { RefNode } from '../types';
 import { StyleTypes } from '../styles/types';
 import { serialize } from '../../../utils';
-import { getContext, getContextFreeName, getMigrationStyles, hasContexts, isContextual } from '../migrate/-styles';
+import { getContext, getContextFreeName, getContexts, getMigrationStyles, hasContexts, isContextual } from '../migrate/-styles';
 
 import { MigrateStylesPayload } from '@theemo-figma/core/node/commands';
 import { filterStyles } from '@theemo-figma/core/migrate';
@@ -19,18 +19,12 @@ export default class MigrateStylesCommand extends NodeCommand {
 
   execute(data: MigrateStylesPayload) {
     const styles = this.findStyles(data.searchPhrase);
-    const nodes = this.findNodes(styles);
     const [references, transforms] = this.compileReferencesAndTransforms();
-    const missingReferences = this.findMissingReferences(styles, references);
-
-    if (missingReferences.length > 0) {
-      console.log('missingReferences', missingReferences);
-    }
 
     this.createVariablesFromStyles(data.collection, styles);
     this.referenceVariables(references, transforms);
+    this.cleanupNodes(styles);
     this.connectStylesWithVariable(styles);
-    this.cleanupNodes(nodes);
 
     this.emitter.sendEvent('migration-styles-collected', getMigrationStyles(this.container).map(serialize));
   }
@@ -75,37 +69,6 @@ export default class MigrateStylesCommand extends NodeCommand {
     return filterStyles(getMigrationStyles(this.container), searchPhrase);
   }
 
-  findNodes(styles: PaintStyle[]): SceneNode[] {
-    const nodesWithReferences = this.container.references.readNodes();
-
-    return styles.flatMap(style => {
-      return style.consumers.flatMap(consumer => consumer.node)
-    }).filter(node => nodesWithReferences.has(node.id));
-  }
-
-  findMissingReferences(styles: PaintStyle[], references: Map<string, string>) {
-    const allStyles = figma.getLocalPaintStyles();
-    const missingReferences = [];
-    for (const style of styles) {
-      if (references.has(style.id)) {
-        // check if references is within the given styles
-        const foundRef = allStyles.find(s => s.id === references.get(style.id));
-
-        // if not, check if this is an already present variable
-        if (!foundRef) {
-          const name = figma.getStyleById(references.get(style.id) as string)?.name as  string;
-          const variable = this.findVariableByName(name);
-
-          if (!variable) {
-            missingReferences.push(style);
-          }
-        }
-      }
-    }
-
-    return missingReferences;
-  }
-
   findVariableByName(name: string) {
     return figma.variables.getLocalVariables().find(variable => variable.name === name);
   }
@@ -116,24 +79,28 @@ export default class MigrateStylesCommand extends NodeCommand {
 
     // first iteration: Create variables from styles
     for (const style of styles) {
-      if (!hasContexts(style, localStyles, contextPrefix)) {
+      if (hasContexts(style, localStyles, contextPrefix)) {
+        this.createMultiModeVariable(collectionId, style);
+      } else {
         this.createVariable(collectionId, style);
       }
     }
   }
 
-  private getModeId(name: string, collection: VariableCollection, context?: string) {
+  private getModeId(name: string, collection: VariableCollection) {
     const contextPrefix = this.container.settings.get('context.prefix');
 
     if (!isContextual(name, contextPrefix)) {
       return collection.defaultModeId;
     }
 
+    const context = getContext(name, contextPrefix);
     const foundMode = collection.modes.find(mode => mode.name === context);
     if (foundMode) {
       return foundMode.modeId;
     }
 
+    // check if collection is empty, then we can turn 
     return collection.addMode(context as string);
   }
 
@@ -141,8 +108,8 @@ export default class MigrateStylesCommand extends NodeCommand {
     const contextPrefix = this.container.settings.get('context.prefix');
 
     // get started creating the variables
-    const collection = figma.variables.getLocalVariableCollections().find(coll => coll.id === collectionId) as VariableCollection;;
-    const modeId = this.getModeId(style.name, collection, getContext(style.name, contextPrefix));
+    const collection = figma.variables.getLocalVariableCollections().find(coll => coll.id === collectionId) as VariableCollection;
+    const modeId = this.getModeId(style.name, collection);
     const name = getVariableNameFromStyle(style, contextPrefix);
 
     let variable = this.findVariableByName(name);
@@ -156,6 +123,30 @@ export default class MigrateStylesCommand extends NodeCommand {
     }
 
     variable.setValueForMode(modeId, (style.paints[0] as SolidPaint).color);
+  }
+
+  createMultiModeVariable(collectionId: string, style: PaintStyle) {
+    const contextPrefix = this.container.settings.get('context.prefix');
+    const contexts = this.container.settings.get('contexts');
+
+    // get started creating the variables
+    const collection = figma.variables.getLocalVariableCollections().find(coll => coll.id === collectionId) as VariableCollection;
+
+    // collection is empty, apply modes and set default mode
+    if (collection.variableIds.length === 0 && contexts.length > 0) {
+      for (const context of contexts) {
+        // ... anyway add as remaining modes
+        collection.addMode(context);
+      }
+
+      // remove old default mode
+      collection.removeMode(collection.defaultModeId);
+    }
+
+    const contextualStyles = getContexts(style, figma.getLocalPaintStyles(), contextPrefix);
+    for (const contextualStyle of contextualStyles) {
+      this.createVariable(collectionId, contextualStyle);
+    }
   }
 
   referenceVariables(references: Map<string, string>, transforms: Map<string, object>) {
@@ -173,18 +164,19 @@ export default class MigrateStylesCommand extends NodeCommand {
    * @param to style id
    */
   referenceVariable(from: string, to: string, transforms: Map<string, Transforms>) {
+    const contextPrefix = this.container.settings.get('context.prefix');
+
     const fromStyle = figma.getStyleById(from) as PaintStyle;
     const toStyle = figma.getStyleById(to) as PaintStyle;
 
-    const fromVariable = this.findVariableByName(fromStyle.name);
-    const toVariable = this.findVariableByName(toStyle.name);
+    const fromVariable = this.findVariableByName(getContextFreeName(fromStyle.name, contextPrefix));
+    const toVariable = this.findVariableByName(getContextFreeName(toStyle.name, contextPrefix));
 
     if (fromVariable && toVariable) {
       // with a transform present, we will store it in our config
       if (transforms.has(fromStyle.name)) {
-        const contextPrefix = this.container.settings.get('context.prefix');
         const collection = findCollection(toVariable) as VariableCollection;
-        const modeId = this.getModeId(fromStyle.name, collection, getContext(fromStyle.name, contextPrefix));
+        const modeId = this.getModeId(fromStyle.name, collection);
         const config = readConfig();
 
         config.variables.push({
@@ -195,66 +187,70 @@ export default class MigrateStylesCommand extends NodeCommand {
         });
 
         storeConfig(config);
-      } 
+      }
       
       // without, we can use figma's variable alias
       else {
         const collection = findCollection(fromVariable) as VariableCollection;
         const alias = figma.variables.createVariableAlias(toVariable);
-        fromVariable.setValueForMode(collection.modes[0].modeId, alias);
+        const modeId = this.getModeId(fromStyle.name, collection);
+        fromVariable.setValueForMode(modeId, alias);
       }
     }
   }
 
   connectStylesWithVariable(styles: PaintStyle[]) {
     const contextPrefix = this.container.settings.get('context.prefix');
+    const paintStyles = figma.getLocalPaintStyles();
 
     for (const style of styles) {
       const name = getVariableNameFromStyle(style, contextPrefix);
       const variable = this.findVariableByName(name) as Variable;
-
-      // remove contextual styles
-      if (isContextual(style.name, contextPrefix)) {
-        style.remove();
-      }
+      const contexts = getContexts(style, paintStyles, contextPrefix);
 
       // connect styles with their variable
-      else {
-        let paints: SolidPaint[] = JSON.parse(JSON.stringify(style.paints)) as SolidPaint[];
-        paints[0] = figma.variables.setBoundVariableForPaint(paints[0], 'color', variable);
-        style.paints = paints;
+      let paints: SolidPaint[] = JSON.parse(JSON.stringify(style.paints)) as SolidPaint[];
+      paints[0] = figma.variables.setBoundVariableForPaint(paints[0], 'color', variable);
+      style.paints = paints;
+
+      // remove contextual styles
+      if (contexts.length > 0) {
+        for (const context of contexts) {
+          context.remove();
+        }
       }
     }
   }
 
-  migrateTransforms(nodes: SceneNode[]) {
-    const references = new Map(Object.entries(JSON.parse(figma.root.getPluginData('references') || '{}')));
-    const refHandlers = nodes.filter(node => this.container.registry.has(node as RefNode))
-      .map(node => this.container.registry.get(node as RefNode))
-      .filter(node => node.hasReference('fill') || node.hasReference('stroke'))
+  findNodes(styles: PaintStyle[]): SceneNode[] {
+    const nodesWithReferences = this.container.references.readNodes();
 
-    for (const handler of refHandlers) {
-      if (handler.hasReference('fill')) {
-        const data = handler.styles[StyleTypes.Fill];
-
-        if (data && data.transforms) {
-          references.set(data.to!.id, { tramsforms: data.transforms });
-        }
-      }
-
-      if (handler.hasReference('stroke')) {
-        const data = handler.styles[StyleTypes.Stroke];
-
-        if (data && data.transforms) {
-          references.set(data.to!.id, { tramsforms: data.transforms });
-        }
-      }
-    }
-
-    figma.root.setPluginData('references', JSON.stringify(Object.fromEntries(references)));
+    return styles.flatMap(style => {
+      return style.consumers.flatMap(consumer => consumer.node)
+    }).filter(node => nodesWithReferences.has(node.id));
   }
 
-  cleanupNodes(nodes: SceneNode[]) {
+  cleanupNodes(styles: PaintStyle[]) {
+    const contextPrefix = this.container.settings.get('context.prefix');
+    const paintStyles = figma.getLocalPaintStyles();
+    const stylesWithContexts = styles.reduce<PaintStyle[]>((collectedStyles, style) => {
+      const contexts = getContexts(style, paintStyles, contextPrefix);
+
+      if (contexts.length > 0) {
+        collectedStyles.push(...contexts);
+      } else {
+        collectedStyles.push(style);
+      }
+
+      return collectedStyles;
+    }, []);
+
+    const nodesWithReferences = this.container.references.readNodes();
+    const nodes = stylesWithContexts.flatMap(style => {
+      return style.consumers.flatMap(consumer => consumer.node)
+    }).filter(node => nodesWithReferences.has(node.id));
+
+
     for (const node of nodes) {
       if (this.container.registry.has(node as RefNode)) {
         const handler = this.container.registry.get(node as RefNode);
