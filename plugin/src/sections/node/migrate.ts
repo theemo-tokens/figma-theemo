@@ -3,6 +3,7 @@ import { STYLES, StyleTypes } from './styles/types';
 export const NON_PAINT_STYLES = [StyleTypes.Text, StyleTypes.Effect];
 import Container from './container';
 import { NAMESPACE } from '../../config';
+import { readConfig, storeConfig } from '../styles/store';
 
 export function migratePluginData() {
   // migrate from plugin data to shared plugin data
@@ -25,19 +26,32 @@ export function migratePluginData() {
 
 export function migrateNonPaintReferences(infrastructure: Infrastructure) {
   const container = new Container(infrastructure);
-  const references = new Map(JSON.parse(figma.root.getPluginData('references') || '{}'));
+  const references = new Map<string, string>();
+  const nodes = container.references.readNodes();
 
   container.references.eachWithHandler((handler) => {
     for (const style of NON_PAINT_STYLES) {
       const data = handler.styles[style];
       if (data && data.from && data.to) {
-        references.set(data.to.id, { value: data.from.id });
+        references.set(data.to.id, data.from.id);
       }
     }
-    handler.delete();
-    container.registry.removeById(handler.node.id);
+
+    if (!handler.managesStyles()) {
+      handler.delete();
+      container.registry.removeById(handler.node.id);
+
+      // remove from nodes
+      nodes.delete(handler.node.id);
+    }
   });
 
-  figma.root.setPluginData('references', JSON.stringify(Object.fromEntries(references)));
+  container.references.storeNodes(nodes);
+
+  const config = readConfig();
+  for (const [styleId, referenceId] of references.entries()) {
+    config.styles.push({ styleId, referenceId });
+  }
+  storeConfig(config);
 }
 

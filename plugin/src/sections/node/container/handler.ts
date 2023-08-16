@@ -104,6 +104,10 @@ export default class NodeHandler {
     return data;
   }
 
+  managesStyles() {
+    return Object.values(this.styles).filter(Boolean).length > 0;
+  }
+
   hasReference(style: string | StyleTypes) {
     const adapter = this.adapters.get(style as StyleTypes);
     if (adapter) {

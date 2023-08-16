@@ -1,6 +1,6 @@
 import { settings } from '../settings';
 import { messenger } from '../infrastructure';
-import type { StatsPayload } from '@theemo-figma/core/events';
+import type { StatsPayload } from '@theemo-figma/core/node/events';
 
 let autoUpdate = false;
 settings.subscribe((settings) => {

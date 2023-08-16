@@ -9,6 +9,7 @@ import NodeCommand from './command';
 import { readConfig, storeConfig } from '../../styles/store';
 import { Transforms } from '@theemo-figma/core/transforms';
 import { findCollection } from '../../../variables';
+import { figureAndSaveVersion } from '../../system/version';
 
 function getVariableNameFromStyle(style: PaintStyle, prefix: string) {
   return isContextual(style.name, prefix) ? getContextFreeName(style.name, prefix) : style.name;
@@ -26,7 +27,15 @@ export default class MigrateStylesCommand extends NodeCommand {
     this.cleanupNodes(styles);
     this.connectStylesWithVariable(styles);
 
+    this.bumpVersion();
+
     this.emitter.sendEvent('migration-styles-collected', getMigrationStyles(this.container).map(serialize));
+  }
+
+  bumpVersion() {
+    const version = figureAndSaveVersion();
+
+    this.emitter.sendEvent('version-changed', version);
   }
 
   compileReferencesAndTransforms(): [Map<string, string>, Map<string, Transforms>] {

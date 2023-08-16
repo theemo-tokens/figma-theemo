@@ -36,7 +36,7 @@
   export let style: Style;
   $: style;
 
-  let suggestions = style.suggestions.map((base) => {
+  $: suggestions = style.suggestions.map((base) => {
     return {
       value: base.id,
       label: base.name,

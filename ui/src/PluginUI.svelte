@@ -1,5 +1,6 @@
 <script>
   import { section } from './ui';
+  import { version } from './settings';
   import TabBar from './components/TabBar.svelte';
   import TabItem from './components/TabItem.svelte';
   import Selection from './sections/Selection.svelte';
@@ -12,47 +13,61 @@
   import { Icon } from 'figma-plugin-ds-svelte';
   import IconSettings from './assets/icons/settings.svg';
   import MigrationDashboard from './sections/MigrationDashboard.svelte';
+
+  $: {
+    if ($version === '2') {
+      $section = 'styles';
+    }
+  }
 </script>
 
 <TabBar>
-  <TabItem
-    activate={() => section.set('selection')}
-    active={$section === 'selection'}>Selection</TabItem
-  >
+  {#if $version === '1'}
+    <TabItem
+      activate={() => section.set('selection')}
+      active={$section === 'selection'}>Selection</TabItem
+    >
 
-  <TabItem activate={() => section.set('styles')} active={$section === 'styles'}
-    >Styles</TabItem
-  >
+    <TabItem
+      activate={() => section.set('styles')}
+      active={$section === 'styles'}>Styles</TabItem
+    >
 
-  <TabItem activate={() => section.set('tools')} active={$section === 'tools'}
-    >Tools</TabItem
-  >
+    <TabItem activate={() => section.set('tools')} active={$section === 'tools'}
+      >Tools</TabItem
+    >
 
-  <TabItem
-    activate={() => section.set('contexts')}
-    active={$section === 'contexts'}>Contexts</TabItem
-  >
+    <TabItem
+      activate={() => section.set('contexts')}
+      active={$section === 'contexts'}>Contexts</TabItem
+    >
 
-  <TabItem
-    activate={() => section.set('migration-dashboard')}
-    active={$section === 'migration-dashboard'}
-  >
-    Migration
-  </TabItem>
+    <TabItem
+      activate={() => section.set('migration-dashboard')}
+      active={$section === 'migration-dashboard'}
+    >
+      Migration
+    </TabItem>
 
-  <TabItem
-    activate={() => section.set('migration')}
-    active={$section === 'migration'}>Migrate Styles</TabItem
-  >
+    <TabItem
+      activate={() => section.set('migration')}
+      active={$section === 'migration'}>Migrate Styles</TabItem
+    >
 
-  <span style="margin-left: auto;" />
+    <span style="margin-left: auto;" />
 
-  <TabItem
-    activate={() => section.set('settings')}
-    active={$section === 'settings'}
-  >
-    <Icon iconName={IconSettings} class="icon" />
-  </TabItem>
+    <TabItem
+      activate={() => section.set('settings')}
+      active={$section === 'settings'}
+    >
+      <Icon iconName={IconSettings} class="icon" />
+    </TabItem>
+  {:else}
+    <TabItem
+      activate={() => section.set('styles')}
+      active={$section === 'styles'}>Styles</TabItem
+    >
+  {/if}
 </TabBar>
 
 {#if $section === 'selection'}
