@@ -10,7 +10,8 @@
     IconPlay
   } from 'figma-plugin-ds-svelte';
   import { settings } from '../settings';
-  import type { CollectedReferencesPayload } from '@theemo-figma/core/sections/tools/events';
+  import type { CollectedReferencesPayload } from '@theemo-figma/core/node/events';
+  import MigrationAlert from './-components/MigrationAlert.svelte';
 
   messenger.addListener(
     'references-collected',
@@ -105,6 +106,8 @@
 </script>
 
 <Section>
+  <MigrationAlert />
+
   <Title>Auto Update</Title>
   <Switch
     checked={$settings['tools.auto-update-references']}

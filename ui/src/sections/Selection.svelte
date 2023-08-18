@@ -5,6 +5,7 @@
   import TabItem from '../components/TabItem.svelte';
   import Style from './selection/Style.svelte';
   import { styles } from './selection/data';
+  import MigrationAlert from './-components/MigrationAlert.svelte';
 
   $: selection =
     $styles && Object.values($styles).length > 0
@@ -26,7 +27,13 @@
     {/each}
   </TabBar>
 
-  <Section><Style style={selection} /></Section>
+  <Section>
+    <MigrationAlert />
+    <Style style={selection} />
+  </Section>
 {:else}
-  <Section>Please select something to manage style references</Section>
+  <Section>
+    <MigrationAlert />
+    Please select something to manage style references
+  </Section>
 {/if}

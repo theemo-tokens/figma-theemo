@@ -22,6 +22,8 @@
   .tab :global(.icon) {
     color: inherit !important;
     fill: none !important;
+    width: auto;
+    height: auto;
   }
   .tab :global(.icon svg) {
     width: 16px;

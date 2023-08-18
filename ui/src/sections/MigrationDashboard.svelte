@@ -5,6 +5,7 @@
   import { messenger } from '../infrastructure';
   import { IconButton } from 'figma-plugin-ds-svelte';
   import IconLocate from '../assets/icons/locate.svg';
+  import Alert from '../components/Alert.svelte';
 
   let nodes = [];
 
@@ -23,6 +24,12 @@
 
 <Section>
   <Title>Migration Dashboard</Title>
+
+  <Alert type="danger" mode="outline">
+    Create a DUPLICATE of your theme file at first (don't forget to import from
+    jsonbin). Do a DRY-RUN! Repeat until you are happy with the result, then do
+    it on your production file.
+  </Alert>
 
   <p class="description">
     Historically Theemo stored its references with its configurations on the

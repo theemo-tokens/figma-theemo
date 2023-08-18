@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
   import { section } from './ui';
   import { version } from './settings';
+  import { messenger } from './infrastructure';
   import TabBar from './components/TabBar.svelte';
   import TabItem from './components/TabItem.svelte';
   import Selection from './sections/Selection.svelte';
@@ -9,14 +10,28 @@
   import Migration from './sections/Migration.svelte';
   import Tools from './sections/Tools.svelte';
   import Styles from './sections/Styles.svelte';
-
-  import { Icon } from 'figma-plugin-ds-svelte';
+  import About from './sections/About.svelte';
+  import { Icon, IconButton } from 'figma-plugin-ds-svelte';
   import IconSettings from './assets/icons/settings.svg';
+  import IconInfo from './assets/icons/info.svg';
+  import IconChevronLeft from './assets/icons/chevron-left.svg';
   import MigrationDashboard from './sections/MigrationDashboard.svelte';
 
   $: {
     if ($version === '2') {
       $section = 'styles';
+    }
+  }
+
+  let windowMaximized = true;
+
+  function toggleWindowMaximize(e: Event) {
+    if (windowMaximized) {
+      messenger.send('minimize');
+      windowMaximized = false;
+    } else {
+      messenger.send('maximize');
+      windowMaximized = true;
     }
   }
 </script>
@@ -67,7 +82,26 @@
       activate={() => section.set('styles')}
       active={$section === 'styles'}>Styles</TabItem
     >
+
+    <span style="margin-left: auto;" />
   {/if}
+
+  <TabItem activate={() => section.set('about')} active={$section === 'about'}>
+    <Icon iconName={IconInfo} class="icon" />
+  </TabItem>
+
+  <TabItem activate={toggleWindowMaximize}>
+    <Icon
+      iconName={IconChevronLeft}
+      class="icon window-control {windowMaximized ? '' : 'minimized'}"
+    />
+  </TabItem>
+
+  <!-- <IconButton
+    iconName={IconBack}
+    class="window-control {windowMaximized ? '' : 'minimized'}"
+    on:click={toggleWindowMaximize}
+  /> -->
 </TabBar>
 
 {#if $section === 'selection'}
@@ -84,4 +118,16 @@
   <MigrationDashboard />
 {:else if $section === 'settings'}
   <Settings />
+{:else if $section === 'about'}
+  <About />
 {/if}
+
+<style>
+  :global(.window-control) {
+    transform: rotate(-90deg);
+  }
+
+  :global(.window-control.minimized) {
+    transform: rotate(90deg);
+  }
+</style>

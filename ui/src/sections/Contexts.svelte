@@ -11,6 +11,7 @@
   import Title from '../components/Title.svelte';
   import { settings } from '../settings';
   import { messenger } from '../infrastructure';
+  import MigrationAlert from './-components/MigrationAlert.svelte';
 
   $: contexts = $settings.contexts;
   $: activeContext = $settings.context;
@@ -36,6 +37,8 @@
 </script>
 
 <Section>
+  <MigrationAlert />
+
   <Title>Add Context</Title>
   <form class="form" on:submit|preventDefault={add}>
     <Input

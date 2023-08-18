@@ -11,6 +11,7 @@
   import Title from '../components/Title.svelte';
   import { settings } from '../settings';
   import { messenger } from '../infrastructure';
+  import MigrationAlert from './-components/MigrationAlert.svelte';
 
   $: contextPrefix = $settings['context.prefix'];
   $: binKey = $settings['tools.jsonbin.key'];
@@ -32,6 +33,8 @@
 
 <Section style="height: calc(100vh - 42px)">
   <div class="grid settings">
+    <MigrationAlert class="row" />
+
     <Title class="row">Contexts</Title>
 
     <p class="description row">

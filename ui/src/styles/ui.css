@@ -9,3 +9,6 @@ body {
   flex-direction: column;
 }
 
+body > .tabs {
+  flex-shrink: 0;
+}
