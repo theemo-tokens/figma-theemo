@@ -76,6 +76,9 @@ export function getMigrationStyles(container: Container) {
         // ... but they are a switch to contextual styles
         hasContexts(style, paintStyles, contextPrefix)
           ? (
+            // ... and is not already bound to a variable
+            !hasBoundVariable(style) && 
+            
             // ... in which case we want them to meet requirements for migration
             doVariablesForAllContextsExists(style, container, references, paintStyles)
           )

@@ -31,6 +31,8 @@ export default class ImportCommand extends NodeCommand {
       }
     }
 
+    this.commander.run('update-styles');
+
     figma.notify(`${count} Reference${count !== 1 ? 's' : ''} imported`);
   }
 }

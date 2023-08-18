@@ -44,7 +44,7 @@
       class="context-name"
     />
 
-    <IconButton type="submit" iconName={IconPlus} />
+    <IconButton type="submit" iconName={IconPlus} on:click={add} />
   </form>
 
   <Title>Select Context</Title>

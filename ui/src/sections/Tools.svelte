@@ -84,8 +84,6 @@
       ? idOrUrl
       : `https://api.jsonbin.io/v3/b/${idOrUrl}`;
 
-    console.log('fetching', url);
-
     try {
       const response = await fetch(url, {
         headers: {
@@ -142,7 +140,7 @@
       class="bin-name"
     />
 
-    <IconButton type="submit" iconName={IconPlay} />
+    <IconButton type="submit" iconName={IconPlay} on:click={startImport} />
   </form>
 </Section>
 

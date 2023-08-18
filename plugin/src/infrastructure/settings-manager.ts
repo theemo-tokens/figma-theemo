@@ -1,4 +1,4 @@
-import { DEFAULT_CONFIG } from '@theemo-figma/core/config';
+import { DEFAULT_CONFIG, Settings } from '@theemo-figma/core/config';
 
 function mapToObject(map: Map<string, unknown>): Record<string, unknown> {
   const data: Record<string, unknown> = {};
@@ -27,21 +27,21 @@ export default class SettingsManager {
     return this.cache;
   }
 
-  async read() {
+  async read(): Promise<Settings | undefined> {
     try {
       const settings = this.readPluginData();
       settings['tools.jsonbin.key'] = await figma.clientStorage.getAsync('jsonBinApiKey') ?? '';
 
-      return mapToObject(this.migrate(new Map(Object.entries({ 
+      return mapToObject(this.migrate(new Map(Object.entries({
         ...DEFAULT_CONFIG, 
         ...settings 
-      }))));
+      })))) as unknown as Settings;
     } catch (e) {
       console.warn(e);
     }
   }
 
-  async save(data) {
+  async save(data: Partial<Settings>) {
     try {
       const key = data['tools.jsonbin.key'];
       delete data['tools.jsonbin.key'];

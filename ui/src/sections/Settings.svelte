@@ -30,7 +30,7 @@
   }
 </script>
 
-<Section>
+<Section style="height: calc(100vh - 42px)">
   <div class="grid settings">
     <Title class="row">Contexts</Title>
 
