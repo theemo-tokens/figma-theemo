@@ -3,7 +3,7 @@
   import Section from '../components/Section.svelte';
   import Title from '../components/Title.svelte';
   import { messenger } from '../infrastructure';
-  import { IconButton } from 'figma-plugin-ds-svelte';
+  import { IconButton, Button } from 'figma-plugin-ds-svelte';
   import IconLocate from '../assets/icons/locate.svg';
   import Alert from '../components/Alert.svelte';
 
