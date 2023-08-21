@@ -16,8 +16,6 @@ export default class MigrateCommand extends Command {
       settings: new SettingsManager()
     });
 
-    
-
     const settings = new SettingsManager();
     const data = await settings.read() as Settings;
     data['tools.auto-update-references'] = false;
@@ -26,5 +24,13 @@ export default class MigrateCommand extends Command {
 
     const version = figureAndSaveVersion();
     this.emitter.sendEvent('version-changed', version);
+
+    this.cleanupSettings(version);
+  }
+
+  private cleanupSettings(version: string) {
+    if (version === '2') {
+      figma.root.setPluginData('settings', '');
+    }
   }
 }
