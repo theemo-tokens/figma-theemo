@@ -6,7 +6,8 @@ export enum CommandName {
   DeleteTransforms = 'styles.delete-transforms',
   ReadConfig = 'styles.read-config',
   LinkReference = 'styles.link-reference',
-  UnlinkReference = 'styles.unlink-reference'
+  UnlinkReference = 'styles.unlink-reference',
+  UpdateVariables = 'styles.update-variables',
 }
 
 export interface Commands {
@@ -19,5 +20,6 @@ export interface Commands {
   };
   [CommandName.UnlinkReference]: {
     styleId: string;
-  }
+  };
+  [CommandName.UpdateVariables]: undefined;
 }

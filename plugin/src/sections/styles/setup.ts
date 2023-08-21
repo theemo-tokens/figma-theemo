@@ -4,6 +4,7 @@ import LinkReferenceCommand from './commands/link-reference';
 import ReadConfigCommand from './commands/read-config';
 import SaveTransformsCommand from './commands/save-transforms';
 import UnlinkReferenceCommand from './commands/unlink-reference';
+import UpdateVariablesCommand from './commands/update-variables';
 import { StylesObserver } from './observer';
 import { listen } from './referencer';
 
@@ -20,4 +21,5 @@ function setupCommands({ commander }: Infrastructure) {
   commander.registerCommand(new ReadConfigCommand());
   commander.registerCommand(new LinkReferenceCommand());
   commander.registerCommand(new UnlinkReferenceCommand());
+  commander.registerCommand(new UpdateVariablesCommand());
 }

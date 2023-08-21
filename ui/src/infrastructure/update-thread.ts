@@ -7,14 +7,25 @@ settings.subscribe((settings) => {
   autoUpdate = settings['tools.auto-update-references'];
 });
 
+let version = '1';
 let counter = 1;
 // values to control thread refresh frequency
 const base = 120;
 const ratio = 1.1;
 let interval = base + 1 * ratio;
 let updateThreadId;
+let stats;
 
-messenger.addListener('stats-collected', (result: StatsPayload) => {
+function updateStylesThread(v: string, s: StatsPayload) {
+  // early exist, when the thread isn't needed
+  if (v === '2' || s === undefined) {
+    if (updateThreadId) {
+      window.clearInterval(updateThreadId);
+    }
+
+    return;
+  }
+
   // the auto-update "thread"
   // fires "constantly" update commands to the plugin
   // not gonna use `requestAnimationFrame` here on purpose!
@@ -27,10 +38,10 @@ messenger.addListener('stats-collected', (result: StatsPayload) => {
     window.clearInterval(updateThreadId);
   }
 
-  interval = base + result.total * ratio;
+  interval = base + s.total * ratio;
 
   updateThreadId = window.setInterval(() => {
-    if (autoUpdate) {
+    if (version === '1' && autoUpdate) {
       // counter mechanics to give figma some time to breath and actually
       // save the changes
       counter++;
@@ -43,7 +54,20 @@ messenger.addListener('stats-collected', (result: StatsPayload) => {
       messenger.send('update-styles');
     }
   }, interval);
+}
+
+messenger.addListener('version-changed', (result: string) => {
+  version = result;
+
+  updateStylesThread(version, stats);
 });
+
+messenger.addListener('stats-collected', (result: StatsPayload) => {
+  stats = result;
+  
+  updateStylesThread(version, stats);
+});
+
 messenger.send('collect-stats');
 
 
