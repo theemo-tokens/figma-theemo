@@ -5,7 +5,8 @@
   "author": "Thomas Gossmann",
   "license": "MIT",
   "scripts": {
-    "dev": "pnpm --parallel start"
+    "dev": "pnpm --parallel start",
+    "build": "pnpm -r build"
   },
   "devDependencies": {
     "concurrently": "^6.3.0",
