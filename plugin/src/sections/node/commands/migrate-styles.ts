@@ -139,6 +139,7 @@ export default class MigrateStylesCommand extends NodeCommand {
 
     if (!variable) {
       variable = figma.variables.createVariable(name, collectionId, 'COLOR');
+      variable.description = style.description;
 
       if (style.name.startsWith('.')) {
         variable.hiddenFromPublishing = true;
