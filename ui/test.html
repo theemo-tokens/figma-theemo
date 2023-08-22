@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      div {
+        border: 1px solid red;
+        background: lightblue;
+      }
+
+      .first, .second {
+        position: relative;
+        display: flex;
+        z-index: 1;
+      }
+
+      .content {
+        
+        display: flex;
+        flex-grow: 1;
+        z-index: 1;
+      }
+
+      .container {
+        position: relative;
+        z-index: 1;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="first">First Level</div>
+    <div class="second">Second Level</div>
+    <div class="content">Content level
+
+      <div class="container">
+        <div class="popup">Popup</div>
+      </div>
+    </div>
+  </body>
+</html>

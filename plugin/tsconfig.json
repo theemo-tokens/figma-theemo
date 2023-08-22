@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ScriptHost",
+      "ES6",
+      "ES2016",
+      "ES2017",
+      "ES2018",
+      "ES2019"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "inlineSourceMap": false,
+    "moduleResolution": "bundler",
+    "paths": {
+      "@theemo-figma/core": [
+        "../core/*"
+      ],
+    },
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@figma"
+    ]
+  }
+}

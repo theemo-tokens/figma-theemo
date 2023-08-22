@@ -1,0 +1,17 @@
+{
+  "name": "@theemo-figma/core",
+  "version": "10",
+  "description": "",
+  "scripts": {
+    "_build": "esbuild src/main.ts --bundle --outfile=dist/main.js --tsconfig=src/tsconfig.json --target=es6",
+    "_start": "pnpm run build -- --watch"
+  },
+  "author": "Thomas Gossmann",
+  "license": "MIT",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.70.0",
+    "concurrently": "^6.3.0",
+    "esbuild": "^0.18.11",
+    "typescript": "^5.1.6"
+  }
+}

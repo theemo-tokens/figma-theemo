@@ -1,0 +1,46 @@
+
+/* Stack Layout */
+.stack {
+  --stack-space: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: var(--stack-space);
+}
+
+/* Pushing an element to the bottom */
+.stack-end {
+  margin-top: auto;
+}
+
+/** Cluster Layout */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* .cluster > * + * {
+  margin-left: 8px;
+} */
+
+/** Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: 66px auto;
+  grid-gap: 0 8px;
+  gap: 0 8px;
+}
+
+.row {
+  grid-column: 1 / 3;
+}
+
+/* form */
+.row-form {
+  display: flex;
+}
+
+.row-form .input {
+  flex-grow: 1;
+}
