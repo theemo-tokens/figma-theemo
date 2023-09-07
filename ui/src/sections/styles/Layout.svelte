@@ -11,7 +11,8 @@
 
   $: {
     if (style && styles && styles.indexOf(style) === -1) {
-      style = undefined;
+      // attempt finding by id
+      style = styles.find((conf) => conf.id === style.id);
     }
   }
 </script>

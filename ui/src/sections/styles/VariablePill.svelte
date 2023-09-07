@@ -12,8 +12,11 @@
   export let variable: Variable;
   export let mode: string | undefined = undefined;
 
+  $: reference = hasReference(variable, mode);
   $: value = getValue(variable, mode);
-  $: color = findColorForVariable(variable, mode);
+  $: color = reference
+    ? findColorForVariable(findVariableById(config.referenceId))
+    : findColorForVariable(variable, mode);
   $: config = getVariableConfig(variable, mode);
 </script>
 

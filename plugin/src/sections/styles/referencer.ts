@@ -41,7 +41,7 @@ function updateTextAndEffectStyle(data: StyleDescriptor) {
   }
 }
 
-function updatePaintStyle(data: StyleDescriptor) {
+export function updatePaintStyle(data: StyleDescriptor) {
   const config = readConfig();
   const style = data.style as PaintStyle;
 

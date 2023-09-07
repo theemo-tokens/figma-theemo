@@ -17,11 +17,10 @@
   $: name = collection.modes.length > 1 ? mode.name : 'Value';
   $: value = getValue(variable, mode.modeId);
 
-  let transformsConfig: VariableConfig =
-    $variables.find(
-      (varConfig) =>
-        varConfig.variableId === variable.id && varConfig.modeId === mode.modeId
-    ) ?? {};
+  $: transformsConfig = ($variables.find(
+    (varConfig) =>
+      varConfig.variableId === variable.id && varConfig.modeId === mode.modeId
+  ) ?? {}) as VariableConfig;
 
   $: transforms = transformsConfig.transforms ?? {};
 
