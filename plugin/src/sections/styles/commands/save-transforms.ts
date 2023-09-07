@@ -2,7 +2,7 @@ import Command from '../../../infrastructure/command';
 import { CommandName, type Commands } from '@theemo-figma/core/styles/commands';
 import { readConfig, storeConfig } from '../store';
 import { VariableConfig } from '@theemo-figma/core/styles';
-import { findVariableFromAlias, getResolvedValue } from '../../../variables';
+import { findCollection, findVariableFromAlias, getResolvedValue } from '../../../variables';
 import { findVariableAlias, hasBoundVariable } from '../../../styles';
 import { updatePaintStyle } from '../referencer';
 import { EventName } from '@theemo-figma/core/styles/events';
@@ -13,11 +13,14 @@ export default class SaveTransformsCommand extends Command {
   execute(data: Commands[CommandName.SaveTransforms]) {
     const config = readConfig();
     const existing = config.variables.find(varConf => varConf.variableId === data.variableId && varConf.modeId === data.modeId);
-    const referenceAlias = this.findReference(data);
+    let reference: Variable | null;
 
     if (existing) {
       existing.transforms = data.transforms;
+      reference = figma.variables.getVariableById(existing.referenceId);
     } else {
+      const referenceAlias = this.findReference(data);
+      reference = figma.variables.getVariableById(referenceAlias.id);
       const conf: VariableConfig = {
         ...data,
         referenceId: referenceAlias.id
@@ -28,16 +31,14 @@ export default class SaveTransformsCommand extends Command {
 
     storeConfig(config);
 
-    // attempt an update
-    const reference = figma.variables.getVariableById(referenceAlias.id);
-
+    // update affected styles
     if (reference) {
       const consumingStyles = figma.getLocalPaintStyles().filter(style => {
         if (hasBoundVariable(style)) {
           const alias = findVariableAlias(style);
           const variable = alias && findVariableFromAlias(alias);
 
-          return variable && variable.id === reference.id;
+          return variable && variable.id === (reference as Variable).id;
         }
         return false;
       });
