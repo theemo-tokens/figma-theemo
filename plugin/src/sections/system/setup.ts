@@ -4,7 +4,6 @@ import CollectVariablesCommand from './commands/collect-variables';
 import MaximizeCommand from './commands/maximize';
 import MigrateCommand from './commands/migrate';
 import MinimizeCommand from './commands/minimize';
-import NotifyCommand from './commands/notify';
 
 export function setupSystem(infrastructure: Infrastructure) {
   setupCommands(infrastructure);
@@ -18,9 +17,6 @@ function setupCommands({ commander }: Infrastructure) {
   // variables
   commander.registerCommand(new CollectVariablesCommand());
   commander.registerCommand(new CollectCollectionsCommand());
-
-  // utils
-  commander.registerCommand(new NotifyCommand());
 
   // internal
   commander.registerCommand(new MigrateCommand());

@@ -2,7 +2,7 @@ import { EventName, type Events } from '@theemo-figma/core/styles/events';
 import Emitter from '../../infrastructure/emitter';
 import { readConfig } from './store';
 import { Config, StyleDescriptor } from '@theemo-figma/core/styles';
-import { RGBAtoPaint, applyTransforms, copyEffectStyle, copyTextStyle, findVariableAlias, hasBoundVariable } from '../../styles';
+import { applyTransforms, copyEffectStyle, copyTextStyle, findVariableAlias, hasBoundVariable } from '../../styles';
 import { findCollection, findColorForVariable, findVariableFromAlias, getResolvedValue, isAlias } from '../../variables';
 
 export function listen(emitter: Emitter) {
