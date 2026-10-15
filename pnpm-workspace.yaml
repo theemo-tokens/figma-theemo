@@ -2,3 +2,6 @@ packages:
   - 'core/'
   - 'plugin/'
   - 'ui/'
+allowBuilds:
+  esbuild: true
+  svelte-preprocess: true
