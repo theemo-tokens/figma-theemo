@@ -34,7 +34,7 @@ export class StylesObserver {
       });
     }
 
-    this.emitter.sendEvent(EventName.StylesInitiated, [...this.descriptors.values()].map(serialize));
+    this.emitter.sendEvent(EventName.StylesInitiated, [...this.descriptors.keys()].map(id => this.serialize(id)));
   }
 
   private listen(e: DocumentChangeEvent) {

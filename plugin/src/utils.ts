@@ -3,6 +3,11 @@ export function serialize(data: unknown) {
     const ret = {};
 
     for (const prop in data) {
+      if (typeof data[prop] === 'symbol') {
+        // values like `figma.mixed` can't be serialized for postMessage
+        continue;
+      }
+
       if (Array.isArray(data[prop])) {
         ret[prop] = data[prop].map(flatSerialize);
       } else if (typeof data[prop] === 'object') {
@@ -23,6 +28,10 @@ function flatSerialize(data: unknown) {
     const ret = {};
 
     for (const prop in data) {
+      if (typeof data[prop] === 'symbol') {
+        continue;
+      }
+
       ret[prop] = data[prop];
     }
 
