@@ -13,16 +13,11 @@
     ],
     "strict": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "inlineSourceMap": false,
     "moduleResolution": "bundler",
-    "paths": {
-      "@theemo-figma/core": [
-        "../core/*"
-      ],
-    },
     "typeRoots": [
-      "node_modules/@types",
-      "node_modules/@figma"
+      "node_modules/@types"
     ]
   }
 }

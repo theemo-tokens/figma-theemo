@@ -1,19 +1,20 @@
-export function serialize(data: unknown) {
+export function serialize(data: unknown): unknown {
   if (typeof data === 'object') {
-    const ret = {};
+    const source = data as Record<string, unknown>;
+    const ret: Record<string, unknown> = {};
 
-    for (const prop in data) {
-      if (typeof data[prop] === 'symbol') {
+    for (const prop in source) {
+      if (typeof source[prop] === 'symbol') {
         // values like `figma.mixed` can't be serialized for postMessage
         continue;
       }
 
-      if (Array.isArray(data[prop])) {
-        ret[prop] = data[prop].map(flatSerialize);
-      } else if (typeof data[prop] === 'object') {
-        ret[prop] = serialize(data[prop]);
+      if (Array.isArray(source[prop])) {
+        ret[prop] = source[prop].map(flatSerialize);
+      } else if (typeof source[prop] === 'object') {
+        ret[prop] = serialize(source[prop]);
       } else {
-        ret[prop] = data[prop];
+        ret[prop] = source[prop];
       }
     }
 
@@ -23,16 +24,17 @@ export function serialize(data: unknown) {
   return data;
 }
 
-function flatSerialize(data: unknown) {
+function flatSerialize(data: unknown): unknown {
   if (typeof data === 'object') {
-    const ret = {};
+    const source = data as Record<string, unknown>;
+    const ret: Record<string, unknown> = {};
 
-    for (const prop in data) {
-      if (typeof data[prop] === 'symbol') {
+    for (const prop in source) {
+      if (typeof source[prop] === 'symbol') {
         continue;
       }
 
-      ret[prop] = data[prop];
+      ret[prop] = source[prop];
     }
 
     return ret;

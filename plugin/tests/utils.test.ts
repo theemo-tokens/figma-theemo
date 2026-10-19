@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest';
 import { serialize } from '../src/utils';
 
 const MIXED = Symbol('figma.mixed');
