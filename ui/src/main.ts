@@ -1,13 +1,13 @@
 import App from './PluginUI.svelte';
+import { mount } from 'svelte';
 
-import { GlobalCSS } from 'figma-plugin-ds-svelte';
 import './styles/ui.css';
 import './styles/common.css';
 import './styles/layout.css';
 import './infrastructure/update-variables';
 
-const app = new App({
-	target: document.body,
+const app = mount(App, {
+  target: document.body,
 });
 
 export default app;

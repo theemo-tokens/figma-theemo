@@ -12,17 +12,7 @@ export default defineConfig({
     svelte(),
     viteSingleFile(),
     svg({
-      plugins: [
-        {
-          name: 'preset-default',
-          params: {
-            overrides: {
-              removeViewBox: false
-            }
-          }
-        },
-        { name: 'removeDimensions' }
-      ]
+      plugins: ['preset-default', 'removeDimensions']
     })
   ],
   build: {

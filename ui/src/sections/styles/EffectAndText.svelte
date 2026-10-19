@@ -1,31 +1,36 @@
 <script lang="ts">
   import type { StyleDescriptor } from '@theemo-figma/core/styles/index';
-  import { SelectMenu, IconButton, IconBreak } from 'figma-plugin-ds-svelte';
-  import { hackSelectOffset } from '../../ui';
+  import { Dropdown, IconButton } from 'figma-ui3-kit-svelte';
+  import { IconLinkBroken } from 'figma-ui3-kit-svelte/icons';
   import { references } from './data';
   import { CommandName } from '@theemo-figma/core/styles/commands';
   import { messenger } from '../../infrastructure';
 
-  export let style: StyleDescriptor;
-  export let referenceStyles;
+  let { style, referenceStyles }: {
+    style: StyleDescriptor;
+    referenceStyles: StyleDescriptor[];
+  } = $props();
 
-  $: style;
+  const suggestions = $derived(
+    referenceStyles
+      .filter((refStyle) => refStyle.id !== style.id)
+      .map((refStyle) => ({ value: refStyle.id, label: refStyle.name }))
+  );
+  const foundReference = $derived(
+    $references.find((ref) => ref.styleId === style.id)
+  );
+  const reference = $derived(
+    foundReference
+      ? suggestions.find(
+          (refStyle) => refStyle.value === foundReference.referenceId
+        )
+      : undefined
+  );
 
-  $: suggestions = referenceStyles
-    .filter((refStyle) => refStyle.id !== style.id)
-    .map((refStyle) => ({ value: refStyle.id, label: refStyle.name }));
-  $: foundReference = $references.find((ref) => ref.styleId === style.id);
-
-  $: reference = foundReference
-    ? suggestions.find(
-        (refStyle) => refStyle.value === foundReference.referenceId
-      )
-    : undefined;
-
-  function linkReference() {
+  function linkReference(item: { value?: string | number }) {
     messenger.send(CommandName.LinkReference, {
       styleId: style.id,
-      referenceId: reference.value
+      referenceId: String(item.value)
     });
   }
 
@@ -39,17 +44,21 @@
 <div class="stack" style="--stack-space: 16px;">
   <div class="stack" style="--stack-space: 4px;">
     <p class="description">Reference</p>
-    <div use:hackSelectOffset={88} class="field">
-      <SelectMenu
+    <div class="field">
+      <Dropdown
         placeholder="Pick a Local Style"
         menuItems={suggestions}
-        bind:value={reference}
-        on:change={linkReference}
+        value={reference ?? null}
+        onchange={linkReference}
       />
 
       {#if foundReference}
         <span class="action-icons">
-          <IconButton iconName={IconBreak} on:click={unlinkReference} />
+          <IconButton
+            iconName={IconLinkBroken}
+            ariaLabel="Unlink reference"
+            onclick={unlinkReference}
+          />
         </span>
       {/if}
     </div>

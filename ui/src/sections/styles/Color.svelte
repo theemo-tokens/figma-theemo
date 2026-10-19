@@ -4,26 +4,23 @@
   import Mode from './Mode.svelte';
   import VariableName from './VariableName.svelte';
 
-  export let style: StyleDescriptor;
+  let { style }: { style: StyleDescriptor } = $props();
 
-  $: paintStyle = style.style as PaintStyle;
-  $: alias = findVariableAlias(paintStyle);
-  $: variable = alias && findVariableFromAlias(alias);
-  $: collection = variable && findCollection(variable);
+  const paintStyle = $derived(style.style as PaintStyle);
+  const alias = $derived(findVariableAlias(paintStyle));
+  const variable = $derived(alias && findVariableFromAlias(alias));
+  const collection = $derived(variable ? findCollection(variable) : undefined);
 
   function findVariableAlias(style: PaintStyle) {
-    if (
-      style.paints[0].type === 'SOLID' &&
-      (style.paints[0] as SolidPaint).boundVariables['color'] &&
-      (style.paints[0] as SolidPaint).boundVariables['color'].type ===
-        'VARIABLE_ALIAS'
-    ) {
-      return (style.paints[0] as SolidPaint).boundVariables['color'];
+    const bound = (style.paints[0] as SolidPaint).boundVariables?.['color'];
+
+    if (style.paints[0].type === 'SOLID' && bound?.type === 'VARIABLE_ALIAS') {
+      return bound;
     }
   }
 </script>
 
-{#if variable}
+{#if variable && collection}
   <div class="stack" style="--stack-space: 16px;">
     <div class="stack" style="--stack-space: 4px;">
       <p class="description">Uses Variable</p>

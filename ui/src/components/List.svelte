@@ -1,49 +1,40 @@
-<script>
-  export let items;
-  export let selection;
-  export let select;
-
+<script lang="ts" generics="T">
   import Listbox from 'makeup-listbox';
   import { onMount, onDestroy } from 'svelte';
+  import type { Snippet } from 'svelte';
 
-  let list;
-  let listbox;
+  let { items, selection, select, children }: {
+    items: T[];
+    selection?: T;
+    select?: (item: T) => void;
+    children?: Snippet<[{ item: T }]>;
+  } = $props();
 
-  // $: {
-  //   if (items) {
-  //     console.log('items changed');
-  //     reset();
-  //   }
-  // }
+  let list = $state<HTMLUListElement | undefined>(undefined);
+  let listbox: Listbox | undefined;
 
   onMount(() => {
+    if (!list) return;
+
     listbox = new Listbox(list);
 
-    list.addEventListener('makeup-listbox-change', function (e) {
-      const index = e.detail.optionIndex;
-      const item = items[index];
+    list.addEventListener('makeup-listbox-change', function (event) {
+      const { optionIndex } = (event as CustomEvent<{ optionIndex: number }>).detail;
+      const item = items[optionIndex];
 
       if (item && select) {
         select(item);
       }
     });
 
-    list.addEventListener('focus', function (e) {
+    list.addEventListener('focus', function () {
       if (selection) {
         const index = items.indexOf(selection);
         if (index !== -1) {
-          listbox.select(index);
+          listbox?.select(index);
         }
       }
     });
-
-    // list.addEventListener('navigationModelInit', function (e) {
-    //   console.log('navigationModelInit', e);
-    // });
-
-    // list.addEventListener('activeDescendantInit', function (e) {
-    //   console.log('activeDescendantInit', e);
-    // });
   });
 
   onDestroy(() => {
@@ -56,7 +47,7 @@
 <ul class="list" bind:this={list} tabindex="0" role="listbox">
   {#each items ?? [] as item (item)}
     <li aria-selected={item === selection} role="option">
-      <slot {item} />
+      {@render children?.({ item })}
     </li>
   {/each}
 </ul>

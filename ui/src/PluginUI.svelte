@@ -5,13 +5,12 @@
   import TabItem from './components/TabItem.svelte';
   import Styles from './sections/Styles.svelte';
   import About from './sections/About.svelte';
-  import { Icon } from 'figma-plugin-ds-svelte';
-  import IconInfo from './assets/icons/info.svg';
-  import IconChevronLeft from './assets/icons/chevron-left.svg';
+  import { Icon } from 'figma-ui3-kit-svelte';
+  import { IconInfoSmall, IconBack } from 'figma-ui3-kit-svelte/icons';
 
-  let windowMaximized = true;
+  let windowMaximized = $state(true);
 
-  function toggleWindowMaximize(e: Event) {
+  function toggleWindowMaximize() {
     if (windowMaximized) {
       messenger.send('minimize');
       windowMaximized = false;
@@ -28,15 +27,16 @@
     active={$section === 'styles'}>Styles</TabItem
   >
 
-  <span style="margin-left: auto;" />
+  <span style="margin-left: auto;"></span>
 
   <TabItem activate={() => section.set('about')} active={$section === 'about'}>
-    <Icon iconName={IconInfo} class="icon" />
+    <Icon iconName={IconInfoSmall} size={16} class="icon" />
   </TabItem>
 
   <TabItem activate={toggleWindowMaximize}>
     <Icon
-      iconName={IconChevronLeft}
+      iconName={IconBack}
+      size={16}
       class="icon window-control {windowMaximized ? '' : 'minimized'}"
     />
   </TabItem>

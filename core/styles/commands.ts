@@ -1,5 +1,5 @@
-import { Transforms } from '../transforms';
-import { VariableConfig } from './index';
+import type { Transforms } from '../transforms';
+import type { VariableConfig } from './index';
 
 export enum CommandName {
   SaveTransforms = 'styles.save-transforms',

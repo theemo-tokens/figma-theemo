@@ -1,13 +1,16 @@
-<p {...$$props} data-title>
-  <slot />
+<script>
+  let { children, ...rest } = $props();
+</script>
+
+<p {...rest} data-title>
+  {@render children()}
 </p>
 
 <style>
   p {
     font-size: var(--font-size-large);
     font-weight: var(--font-weight-medium);
-    /* letter-spacing: var(--font-letter-spacing-pos-xsmall); */
-    line-height: var(--line-height);
+    line-height: var(--line-height-22);
     color: var(--figma-color-text);
     margin: 0;
     width: 100%;
@@ -15,6 +18,5 @@
     align-items: center;
     cursor: default;
     user-select: none;
-    /* padding: 0 calc(var(--size-xxsmall) / 2) 0 var(--size-xxsmall); */
   }
 </style>

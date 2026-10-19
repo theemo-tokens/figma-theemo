@@ -1,18 +1,21 @@
-<script>
-  export let stackSpace = $$slots.footer ? '0' : undefined;
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+
+  let { children, footer, ...rest }: {
+    children?: Snippet;
+    footer?: Snippet;
+    [key: string]: any;
+  } = $props();
+
+  const stackSpace = $derived(footer ? '0' : undefined);
 </script>
 
-<section
-  {...$$props}
-  class="stack"
-  class:with-footer={$$slots.footer}
-  style:--stack-space={stackSpace}
->
-  <slot />
+<section {...rest} class="stack" class:with-footer={!!footer} style:--stack-space={stackSpace}>
+  {@render children?.()}
 
-  {#if $$slots.footer}
+  {#if footer}
     <footer>
-      <slot name="footer" />
+      {@render footer()}
     </footer>
   {/if}
 </section>

@@ -27,7 +27,7 @@ export function findCollection(variable: Variable) {
 
 export function getValue(variable: Variable, mode?: string) {
   const collection = findCollection(variable);
-  const usedMode = mode ?? collection.defaultModeId;
+  const usedMode = mode ?? collection!.defaultModeId;
   return variable.valuesByMode[usedMode];
 }
 
@@ -46,7 +46,7 @@ export function findColorForVariable(variable: Variable, mode?: string) {
   const value = getValue(variable, mode);
 
   if (isAlias(value)) {
-    return findColorForVariable(findVariableFromAlias(value));
+    return findColorForVariable(findVariableFromAlias(value)!);
   }
 
   return getValueAsHex(value as RGBA);

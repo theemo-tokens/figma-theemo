@@ -9,16 +9,21 @@ export default class Messenger {
   }
 
   addListener(event: string, listener: Function) {
-    if (!this.listener.has(event)) {
-      this.listener.set(event, new Set());
+    let listeners = this.listener.get(event);
+
+    if (!listeners) {
+      listeners = new Set();
+      this.listener.set(event, listeners);
     }
 
-    this.listener.get(event).add(listener);
+    listeners.add(listener);
   }
 
   removeListener(event: string, listener: Function) {
-    if (this.listener.has(event)) {
-      this.listener.get(event).delete(listener);
+    const listeners = this.listener.get(event);
+
+    if (listeners) {
+      listeners.delete(listener);
     }
   }
 
@@ -26,8 +31,10 @@ export default class Messenger {
     const message = event.data.pluginMessage;
 
     if (message.event) {
-      if (this.listener.has(message.event)) {
-        for (const listener of this.listener.get(message.event)) {
+      const listeners = this.listener.get(message.event);
+
+      if (listeners) {
+        for (const listener of listeners) {
           listener.call({}, message.data);
         }
       }

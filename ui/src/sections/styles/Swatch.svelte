@@ -1,10 +1,10 @@
 <script lang="ts">
   import { getColorAsCSS } from './data';
 
-  export let style: PaintStyle;
+  let { style }: { style: PaintStyle } = $props();
 </script>
 
-<span class="color-swatch" style="--value: {getColorAsCSS(style)}" />
+<span class="color-swatch" style="--value: {getColorAsCSS(style)}"></span>
 
 <style>
   .color-swatch {

@@ -14,19 +14,6 @@
     "allowJs": true,
     "checkJs": true,
     "isolatedModules": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/@figma"
-    ],
-    "baseUrl": "./",
-    "paths": {
-      "@theemo-figma/core": [
-        "../core/*"
-      ],
-      "*": [
-        "./types/*"
-      ]
-    }
   },
   "include": [
     "src/**/*.d.ts",

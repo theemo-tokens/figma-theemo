@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Input } from 'figma-plugin-ds-svelte';
+  import { Input } from 'figma-ui3-kit-svelte';
   import VariablePill from './VariablePill.svelte';
   import { findCollection, getValue, isAlias } from './variables';
   import { hasReference, variables } from './data';
@@ -7,58 +7,57 @@
   import { CommandName } from '@theemo-figma/core/styles/commands';
   import type { VariableConfig } from '@theemo-figma/core/styles/index';
 
-  export let mode: {
-    modeId: string;
-    name: string;
-  };
-  export let variable: Variable;
+  let { mode, variable }: {
+    mode: { modeId: string; name: string };
+    variable: Variable;
+  } = $props();
 
-  $: collection = findCollection(variable);
-  $: name = collection.modes.length > 1 ? mode.name : 'Value';
-  $: value = getValue(variable, mode.modeId);
+  const collection = $derived(findCollection(variable));
+  const name = $derived(
+    (collection?.modes.length ?? 1) > 1 ? mode.name : 'Value'
+  );
+  const value = $derived(getValue(variable, mode.modeId));
 
-  $: transformsConfig = ($variables.find(
-    (varConfig) =>
-      varConfig.variableId === variable.id && varConfig.modeId === mode.modeId
-  ) ?? {}) as VariableConfig;
+  const transformsConfig = $derived(
+    ($variables.find(
+      (varConfig) =>
+        varConfig.variableId === variable.id && varConfig.modeId === mode.modeId
+    ) ?? {}) as VariableConfig
+  );
 
-  $: transforms = transformsConfig.transforms ?? {};
+  const transforms = $derived(transformsConfig.transforms ?? {});
 
   // transforms
-  $: hue = transforms.hue;
-  $: saturation = transforms.saturation;
-  $: lightness = transforms.lightness;
-  $: opacity = transforms.opacity;
+  const hue = $derived(transforms.hue);
+  const saturation = $derived(transforms.saturation);
+  const lightness = $derived(transforms.lightness);
+  const opacity = $derived(transforms.opacity);
 
-  function updateTransforms(prop: string) {
+  function updateTransforms(prop: 'hue' | 'saturation' | 'lightness' | 'opacity') {
     return function (event: Event) {
-      const value = (event.target as HTMLInputElement).value;
-      const number = Number.parseInt(value, 10);
+      const number = Number.parseInt((event.target as HTMLInputElement).value, 10);
 
-      // let transforms = style.data.transforms;
+      // clone, mutate – transforms are derived state
+      const next = { ...transforms };
 
-      // udpate
+      // update
       if (number) {
-        if (!transforms) {
-          transforms = {};
-        }
-
-        transforms[prop] = number;
+        next[prop] = number;
       }
-
       // delete
-      else if (transforms && transforms[prop] !== undefined) {
-        delete transforms[prop];
+      else if (next[prop] !== undefined) {
+        delete next[prop];
       }
 
-      const transformsAvailable = Object.values(transforms).some(
+      const transformsAvailable = Object.values(next).some(
         (val) => val !== undefined
       );
+
       if (transformsAvailable) {
         messenger.send(CommandName.SaveTransforms, {
           variableId: variable.id,
           modeId: mode.modeId,
-          transforms
+          transforms: next
         });
       } else {
         messenger.send(CommandName.DeleteTransforms, {
@@ -95,30 +94,30 @@
       <Input
         placeholder="Hue"
         value={hue}
-        on:change={updateTransforms('hue')}
-        on:blur={updateTransforms('hue')}
-        on:keydown={modifyTransform}
+        onchange={updateTransforms('hue')}
+        onblur={updateTransforms('hue')}
+        onkeydown={modifyTransform}
       />
       <Input
         placeholder="Saturation"
         value={saturation}
-        on:change={updateTransforms('saturation')}
-        on:blur={updateTransforms('saturation')}
-        on:keydown={modifyTransform}
+        onchange={updateTransforms('saturation')}
+        onblur={updateTransforms('saturation')}
+        onkeydown={modifyTransform}
       />
       <Input
         placeholder="Lightness"
         value={lightness}
-        on:change={updateTransforms('lightness')}
-        on:blur={updateTransforms('lightness')}
-        on:keydown={modifyTransform}
+        onchange={updateTransforms('lightness')}
+        onblur={updateTransforms('lightness')}
+        onkeydown={modifyTransform}
       />
       <Input
         placeholder="Opacity"
         value={opacity}
-        on:change={updateTransforms('opacity')}
-        on:blur={updateTransforms('opacity')}
-        on:keydown={modifyTransform}
+        onchange={updateTransforms('opacity')}
+        onblur={updateTransforms('opacity')}
+        onkeydown={modifyTransform}
       />
     </div>
   {/if}
@@ -134,5 +133,6 @@
   .input-group {
     display: flex;
     gap: 4px;
+    flex-wrap: wrap;
   }
 </style>

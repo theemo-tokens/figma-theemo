@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let variable: Variable;
+  let { variable }: { variable: Variable } = $props();
 </script>
 
 <span class="pill">{variable.name}</span>

@@ -9,24 +9,28 @@
     isAlias
   } from './variables';
 
-  export let variable: Variable;
-  export let mode: string | undefined = undefined;
+  let { variable, mode = undefined }: {
+    variable: Variable;
+    mode?: string;
+  } = $props();
 
-  $: reference = hasReference(variable, mode);
-  $: value = getValue(variable, mode);
-  $: color = reference
-    ? findColorForVariable(findVariableById(config.referenceId))
-    : findColorForVariable(variable, mode);
-  $: config = getVariableConfig(variable, mode);
+  const reference = $derived(hasReference(variable, mode));
+  const value = $derived(getValue(variable, mode));
+  const config = $derived(getVariableConfig(variable, mode));
+  const color = $derived(
+    reference
+      ? findColorForVariable(findVariableById(config!.referenceId)!)
+      : findColorForVariable(variable, mode)
+  );
 </script>
 
 <span class="variable">
-  <span class="color-swatch" style="--value: {color}" />
+  <span class="color-swatch" style="--value: {color}"></span>
 
   {#if isAlias(value)}
-    <VariableName variable={findVariableFromAlias(value)} />
-  {:else if hasReference(variable, mode)}
-    <VariableName variable={findVariableById(config.referenceId)} />
+    <VariableName variable={findVariableFromAlias(value)!} />
+  {:else if reference}
+    <VariableName variable={findVariableById(config!.referenceId)!} />
   {:else}
     {color}
   {/if}
