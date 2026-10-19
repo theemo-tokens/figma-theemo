@@ -8,7 +8,7 @@
 
 <style>
   p {
-    font-size: var(--font-size-large);
+    font-size: var(--body-large-font-size);
     font-weight: var(--font-weight-medium);
     line-height: var(--line-height-22);
     color: var(--figma-color-text);
