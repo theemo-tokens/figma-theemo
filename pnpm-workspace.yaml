@@ -7,4 +7,3 @@ overrides:
   vitest@*: 5.0.5
 allowBuilds:
   esbuild: true
-  svelte-preprocess: true
