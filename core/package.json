@@ -2,8 +2,8 @@
   "name": "@theemo-figma/core",
   "version": "10",
   "description": "",
-  "author": "Thomas Gossmann",
   "license": "MIT",
+  "author": "Thomas Gossmann",
   "scripts": {
     "typecheck": "tsc --noEmit"
   },

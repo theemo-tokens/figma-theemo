@@ -6,7 +6,7 @@ import { setupSystem } from './sections/system/setup';
 
 figma.showUI(__html__, {
   ...UI_DIMENSIONS,
-  themeColors: true
+  themeColors: true,
 });
 
 const emitter = new Emitter();

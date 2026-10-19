@@ -8,7 +8,7 @@ export function hasBoundVariable(style: PaintStyle) {
     paints.length > 0 &&
     paints[0].type === 'SOLID' &&
     (paints[0] as SolidPaint).boundVariables !== undefined &&
-    ((paints[0] as SolidPaint).boundVariables as BoundVariables)['color']
+    ((paints[0] as SolidPaint).boundVariables as BoundVariables)['color'],
   );
 }
 
@@ -33,9 +33,9 @@ export function getValueAsHex(value: RGB | RGBA) {
 
 export function applyTransforms(value: RGBA, transforms: PaintTransforms): RGBA {
   let color = valueToColord(value);
-  
+
   if (transforms.opacity) {
-    color = color.alpha(color.alpha() + transforms.opacity / 100)
+    color = color.alpha(color.alpha() + transforms.opacity / 100);
   }
 
   if (transforms.hue) {
@@ -54,7 +54,7 @@ export function applyTransforms(value: RGBA, transforms: PaintTransforms): RGBA 
     r: color.rgba.r / 255,
     g: color.rgba.g / 255,
     b: color.rgba.b / 255,
-    a: color.rgba.a
+    a: color.rgba.a,
   };
 }
 
@@ -76,7 +76,7 @@ export function copyTextStyle(from: TextStyle, to: TextStyle) {
     to.textCase = from.textCase;
     to.textDecoration = from.textDecoration;
     to.fontName = from.fontName;
-  } catch (e) {
+  } catch {
     figma.loadFontAsync(from.fontName).then(() => {
       to.fontName = from.fontName;
     });

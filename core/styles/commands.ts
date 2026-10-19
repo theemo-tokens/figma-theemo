@@ -1,4 +1,3 @@
-import type { Transforms } from '../transforms';
 import type { VariableConfig } from './index';
 
 export enum CommandName {

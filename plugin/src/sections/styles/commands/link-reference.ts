@@ -7,7 +7,7 @@ export default class LinkReferenceCommand extends Command {
 
   execute(data: Commands[CommandName.LinkReference]) {
     const config = readConfig();
-    const existing = config.styles.find(style => style.styleId === data.styleId);
+    const existing = config.styles.find((style) => style.styleId === data.styleId);
 
     if (existing) {
       existing.referenceId = data.referenceId;

@@ -2,7 +2,7 @@ import Command from '../../../infrastructure/command';
 import { CommandName, type Commands } from '@theemo-figma/core/styles/commands';
 import { readConfig, storeConfig } from '../store';
 import { VariableConfig } from '@theemo-figma/core/styles';
-import { findCollection, findVariableFromAlias, getResolvedValue } from '../../../variables';
+import { findVariableFromAlias, getResolvedValue } from '../../../variables';
 import { findVariableAlias, hasBoundVariable } from '../../../styles';
 import { updatePaintStyle } from '../referencer';
 import { EventName } from '@theemo-figma/core/styles/events';
@@ -12,7 +12,9 @@ export default class SaveTransformsCommand extends Command {
 
   execute(data: Commands[CommandName.SaveTransforms]) {
     const config = readConfig();
-    const existing = config.variables.find(varConf => varConf.variableId === data.variableId && varConf.modeId === data.modeId);
+    const existing = config.variables.find(
+      (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId,
+    );
     let reference: Variable | null;
 
     if (existing) {
@@ -23,7 +25,7 @@ export default class SaveTransformsCommand extends Command {
       reference = figma.variables.getVariableById(referenceAlias.id);
       const conf: VariableConfig = {
         ...data,
-        referenceId: referenceAlias.id
+        referenceId: referenceAlias.id,
       };
       config.variables.push(conf);
       this.unlinkVariable(data);
@@ -33,7 +35,7 @@ export default class SaveTransformsCommand extends Command {
 
     // update affected styles
     if (reference) {
-      const consumingStyles = figma.getLocalPaintStyles().filter(style => {
+      const consumingStyles = figma.getLocalPaintStyles().filter((style) => {
         if (hasBoundVariable(style)) {
           const alias = findVariableAlias(style);
           const variable = alias && findVariableFromAlias(alias);

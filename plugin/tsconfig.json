@@ -1,23 +1,12 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ScriptHost",
-      "ES6",
-      "ES2016",
-      "ES2017",
-      "ES2018",
-      "ES2019"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ScriptHost", "ES6", "ES2016", "ES2017", "ES2018", "ES2019"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "inlineSourceMap": false,
     "moduleResolution": "bundler",
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "typeRoots": ["node_modules/@types"]
   }
 }

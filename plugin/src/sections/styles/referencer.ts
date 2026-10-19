@@ -2,8 +2,14 @@ import { EventName, type Events } from '@theemo-figma/core/styles/events';
 import Emitter from '../../infrastructure/emitter';
 import { readConfig } from './store';
 import { Config, StyleDescriptor } from '@theemo-figma/core/styles';
-import { applyTransforms, copyEffectStyle, copyTextStyle, findVariableAlias, hasBoundVariable } from '../../styles';
-import { findCollection, findColorForVariable, findVariableFromAlias, getResolvedValue, isAlias } from '../../variables';
+import {
+  applyTransforms,
+  copyEffectStyle,
+  copyTextStyle,
+  findVariableAlias,
+  hasBoundVariable,
+} from '../../styles';
+import { findCollection, findVariableFromAlias, getResolvedValue } from '../../variables';
 
 export function listen(emitter: Emitter) {
   // @ts-ignore
@@ -30,14 +36,16 @@ function updateTextAndEffectStyle(data: StyleDescriptor) {
   const config = readConfig();
   const references = findReferencesConfig(data, config);
   // @ts-ignore
-  const copy: CopyStyle<TextStyle | EffectStyle> = data.style.type === 'EFFECT' ? copyEffectStyle : copyTextStyle;
-  const locals: BaseStyle[] = data.style.type === 'EFFECT' ? figma.getLocalEffectStyles() : figma.getLocalTextStyles();
+  const copy: CopyStyle<TextStyle | EffectStyle> =
+    data.style.type === 'EFFECT' ? copyEffectStyle : copyTextStyle;
+  const locals: BaseStyle[] =
+    data.style.type === 'EFFECT' ? figma.getLocalEffectStyles() : figma.getLocalTextStyles();
   if (references.length > 0) {
     references
       // find styles to update
-      .map((ref) => locals.find(style => style.id === ref.styleId))
+      .map((ref) => locals.find((style) => style.id === ref.styleId))
       // update them
-      .forEach(to => copy(data.style as EffectStyle | TextStyle, to  as EffectStyle | TextStyle));
+      .forEach((to) => copy(data.style as EffectStyle | TextStyle, to as EffectStyle | TextStyle));
   }
 }
 
@@ -62,7 +70,8 @@ export function updatePaintStyle(data: StyleDescriptor) {
           const conf = findVariableConfig(reference, mode.modeId, config);
 
           if (conf) {
-            const modeId = collection.id === refCollection.id ? mode.modeId : collection.defaultModeId;
+            const modeId =
+              collection.id === refCollection.id ? mode.modeId : collection.defaultModeId;
 
             // find the original value
             const originValue = getResolvedValue(variable, modeId) as RGBA;
@@ -84,8 +93,8 @@ function findReferencesTo(variable: Variable): Variable[] {
   const variables = figma.variables.getLocalVariables();
 
   return config.variables
-    .filter(varConf => varConf.referenceId === variable.id)
-    .map(varConf => variables.find(variable => variable.id === varConf.variableId) as Variable)
+    .filter((varConf) => varConf.referenceId === variable.id)
+    .map((varConf) => variables.find((variable) => variable.id === varConf.variableId) as Variable)
     .filter(Boolean);
 }
 
@@ -94,9 +103,12 @@ function deleteStyle(data: Events[EventName.StyleDeleted]) {
 }
 
 function findReferencesConfig(desc: StyleDescriptor, config: Config) {
-  return config.styles.filter(style => style.referenceId === desc.id);
+  return config.styles.filter((style) => style.referenceId === desc.id);
 }
 
 function findVariableConfig(variable: Variable, mode: string, config: Config) {
-  return config.variables.find((conf) => conf.variableId === variable.id && conf.modeId === mode && conf.transforms !== undefined); 
+  return config.variables.find(
+    (conf) =>
+      conf.variableId === variable.id && conf.modeId === mode && conf.transforms !== undefined,
+  );
 }

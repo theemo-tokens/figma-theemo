@@ -2,8 +2,8 @@
   "name": "@theemo-figma/plugin",
   "version": "10",
   "description": "",
-  "author": "Thomas Gossmann",
   "license": "MIT",
+  "author": "Thomas Gossmann",
   "scripts": {
     "build": "vp build",
     "dev": "vp build --watch",

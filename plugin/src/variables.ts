@@ -5,19 +5,25 @@ export function findVariableFromAlias(alias: VariableAlias) {
 }
 
 export function findCollection(variable: Variable) {
-  return figma.variables.getLocalVariableCollections().find(collection => collection.id === variable.variableCollectionId);
+  return figma.variables
+    .getLocalVariableCollections()
+    .find((collection) => collection.id === variable.variableCollectionId);
 }
 
 export function getValue(variable: Variable, mode?: string) {
   const collection = findCollection(variable) as VariableCollection;
-  const usedMode = mode && collection.modes.find(collMode => collMode.modeId === mode) 
-    ? mode 
-    : collection.defaultModeId;
+  const usedMode =
+    mode && collection.modes.find((collMode) => collMode.modeId === mode)
+      ? mode
+      : collection.defaultModeId;
   return variable.valuesByMode[usedMode];
 }
 
 export function isAlias(value: VariableValue): value is VariableAlias {
-  return (value as VariableAlias).type !== undefined && (value as VariableAlias).type === 'VARIABLE_ALIAS';
+  return (
+    (value as VariableAlias).type !== undefined &&
+    (value as VariableAlias).type === 'VARIABLE_ALIAS'
+  );
 }
 
 export function getResolvedValue(variable: Variable, mode?: string) {

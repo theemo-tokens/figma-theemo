@@ -11,7 +11,6 @@ export default defineConfig({
       output: {
         format: 'iife',
         entryFileNames: 'main.js',
-        inlineDynamicImports: true,
       },
     },
   },

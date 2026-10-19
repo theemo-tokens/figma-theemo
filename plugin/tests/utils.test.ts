@@ -9,7 +9,7 @@ describe('Utils | serialize', () => {
       id: '1:25',
       name: 'style',
       fontName: MIXED,
-      fontSize: 16
+      fontSize: 16,
     };
 
     expect(serialize(descriptor)).toStrictEqual({ id: '1:25', name: 'style', fontSize: 16 });
@@ -21,8 +21,8 @@ describe('Utils | serialize', () => {
       style: {
         name: 'style',
         lineHeight: MIXED,
-        letterSpacing: { value: 0, unit: 'PIXELS' }
-      }
+        letterSpacing: { value: 0, unit: 'PIXELS' },
+      },
     };
 
     const result = serialize(descriptor) as { style: Record<string, unknown> };
@@ -36,8 +36,8 @@ describe('Utils | serialize', () => {
       id: '1:25',
       paints: [
         { type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: MIXED },
-        { type: 'SOLID', color: { r: 1, g: 1, b: 1 } }
-      ]
+        { type: 'SOLID', color: { r: 1, g: 1, b: 1 } },
+      ],
     };
 
     const result = serialize(descriptor) as { paints: Record<string, unknown>[] };
@@ -55,7 +55,7 @@ describe('Utils | serialize', () => {
       description: '',
       remote: false,
       key: 'abc',
-      type: 'PAINT'
+      type: 'PAINT',
     };
 
     expect(serialize(descriptor)).toStrictEqual(descriptor);

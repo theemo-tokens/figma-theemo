@@ -8,14 +8,16 @@ export default class DeleteTransformsCommand extends Command {
 
   execute(data: Commands[CommandName.DeleteTransforms]) {
     const config = readConfig();
-    const existing = config.variables.find(varConf => varConf.variableId === data.variableId && varConf.modeId === data.modeId);
+    const existing = config.variables.find(
+      (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId,
+    );
 
     if (existing) {
       config.variables.splice(config.variables.indexOf(existing), 1);
 
       storeConfig(config);
 
-      this.linkVariable(existing)
+      this.linkVariable(existing);
     }
   }
 
