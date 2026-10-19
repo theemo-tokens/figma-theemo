@@ -1,28 +1,40 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# CI for the Vite+ toolchain: everything runs through project-local `vp`
+# (vite-plus devDependency), resolved from node_modules/.bin via package scripts.
 
-name: Test
+name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
-  build:
-
+  ci:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 14.x]
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: yarn install
-    - run: yarn test
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: 'Format & lint'
+        run: pnpm check
+
+      - name: 'Typecheck (tsc + svelte-check)'
+        run: pnpm typecheck
+
+      - name: 'Test (Vitest: plugin + ui)'
+        run: pnpm test
+
+      - name: 'Build'
+        run: pnpm build

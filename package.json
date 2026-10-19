@@ -2,15 +2,17 @@
   "name": "figma-theemo",
   "version": "10",
   "description": "",
-  "author": "Thomas Gossmann",
   "license": "MIT",
+  "author": "Thomas Gossmann",
   "scripts": {
     "dev": "vp run -r --parallel --no-cache dev",
     "build": "vp run -r build",
     "test": "vp run -r test",
+    "typecheck": "vp run -r typecheck",
     "check": "vp check"
   },
   "devDependencies": {
     "vite-plus": "1.3.0"
-  }
+  },
+  "packageManager": "pnpm@12.6.0"
 }

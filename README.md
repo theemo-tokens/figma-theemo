@@ -40,6 +40,15 @@ Or run the watch servers:
 pnpm dev
 ```
 
+Test, typecheck and format/lint (all via Vite+, installed locally as a
+devDependency — no global CLI required):
+
+```bash
+pnpm test        # Vitest: plugin logic + UI (bus contract & panels)
+pnpm typecheck   # tsc (core, plugin) + svelte-check (ui)
+pnpm check       # Oxfmt format & Oxlint over the whole workspace
+```
+
 Then point Figma to the `manifest.json` in this repository to load the plugin.
 
 More documentation is available at [theemo.io](https://theemo.io).
