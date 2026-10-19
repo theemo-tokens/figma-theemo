@@ -14,7 +14,7 @@ messenger.addListener('collections-collected', (payload: VariableCollection[]) =
 });
 
 export function findVariableById(id: string) {
-  return get(variables).find(variable => variable.id === id);
+  return get(variables).find((variable) => variable.id === id);
 }
 
 export function findVariableFromAlias(alias: VariableAlias) {
@@ -22,7 +22,7 @@ export function findVariableFromAlias(alias: VariableAlias) {
 }
 
 export function findCollection(variable: Variable) {
-  return get(collections).find(collection => collection.id === variable.variableCollectionId);
+  return get(collections).find((collection) => collection.id === variable.variableCollectionId);
 }
 
 export function getValue(variable: Variable, mode?: string) {
@@ -32,7 +32,10 @@ export function getValue(variable: Variable, mode?: string) {
 }
 
 export function isAlias(value: VariableValue): value is VariableAlias {
-  return (value as VariableAlias).type !== undefined && (value as VariableAlias).type === 'VARIABLE_ALIAS';
+  return (
+    (value as VariableAlias).type !== undefined &&
+    (value as VariableAlias).type === 'VARIABLE_ALIAS'
+  );
 }
 
 export function getValueAsHex(value: RGB | RGBA) {

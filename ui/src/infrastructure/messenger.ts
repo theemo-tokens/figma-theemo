@@ -1,5 +1,4 @@
 export default class Messenger {
-
   private listener: Map<string, Set<Function>> = new Map();
 
   constructor() {

@@ -3,9 +3,9 @@
   import { onMount, onDestroy } from 'svelte';
   import type { Snippet } from 'svelte';
 
-  let { items, selection, select, children }: {
+  let { items, isSelected, select, children }: {
     items: T[];
-    selection?: T;
+    isSelected?: (item: T) => boolean;
     select?: (item: T) => void;
     children?: Snippet<[{ item: T }]>;
   } = $props();
@@ -28,8 +28,8 @@
     });
 
     list.addEventListener('focus', function () {
-      if (selection) {
-        const index = items.indexOf(selection);
+      if (isSelected) {
+        const index = items.findIndex((item) => isSelected(item));
         if (index !== -1) {
           listbox?.select(index);
         }
@@ -46,7 +46,7 @@
 
 <ul class="list" bind:this={list} tabindex="0" role="listbox">
   {#each items ?? [] as item (item)}
-    <li aria-selected={item === selection} role="option">
+    <li aria-selected={isSelected?.(item) ?? false} role="option">
       {@render children?.({ item })}
     </li>
   {/each}

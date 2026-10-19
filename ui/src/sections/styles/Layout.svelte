@@ -11,21 +11,17 @@
     children?: Snippet<[{ style: StyleDescriptor }]>;
   } = $props();
 
-  let style = $state<StyleDescriptor | undefined>(undefined);
+  let selectedId = $state<string | undefined>(undefined);
 
-  $effect(() => {
-    if (style && styles && styles.indexOf(style) === -1) {
-      // attempt finding by id
-      style = styles.find((conf) => conf.id === style!.id);
-    }
-  });
+  // selection tracked by id: survives store updates that replace objects
+  let style = $derived(styles.find((s) => s.id === selectedId));
 </script>
 
 <div class="layout">
   <List
     items={styles}
-    selection={style}
-    select={(selection: StyleDescriptor) => (style = selection)}
+    isSelected={(item: StyleDescriptor) => item.id === selectedId}
+    select={(item: StyleDescriptor) => (selectedId = item.id)}
   >
     {#snippet children({ item })}
       <Style style={item} />
