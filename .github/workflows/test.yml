@@ -33,8 +33,8 @@ jobs:
       - name: 'Typecheck (tsc + svelte-check)'
         run: pnpm typecheck
 
+      - name: 'Build (before tests: the ui bundle guard reads dist/)'
+        run: pnpm build
+
       - name: 'Test (Vitest: plugin + ui)'
         run: pnpm test
-
-      - name: 'Build'
-        run: pnpm build
