@@ -40,8 +40,9 @@ Or run the watch servers:
 pnpm dev
 ```
 
-Test, typecheck and format/lint (all via Vite+, installed locally as a
-devDependency — no global CLI required):
+Test, typecheck and format/lint (orchestrated by Vite+ at the workspace root,
+installed locally as a devDependency — no global CLI required; the packages
+themselves run plain `vite` / `vitest`):
 
 ```bash
 pnpm test        # Vitest: plugin logic + UI (bus contract & panels)

@@ -5,21 +5,21 @@
   "license": "MIT",
   "author": "Thomas Gossmann",
   "scripts": {
-    "build": "vp build",
-    "dev": "vp build --watch",
-    "test": "vp test run",
-    "test:watch": "vp test",
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@theemo-figma/core": "workspace:../core",
-    "colord": "^2.10.0"
+    "colord": "catalog:utils"
   },
   "devDependencies": {
-    "@figma/plugin-typings": "^1.142.0",
-    "figma-api-stub": "^0.0.57",
-    "typescript": "^6.0.3",
-    "vite": "^8.3.4",
-    "vitest": "^5.0.5"
+    "@figma/plugin-typings": "catalog:figma",
+    "figma-api-stub": "catalog:figma",
+    "typescript": "catalog:typescript",
+    "vite": "catalog:vite",
+    "vitest": "catalog:testing"
   }
 }
