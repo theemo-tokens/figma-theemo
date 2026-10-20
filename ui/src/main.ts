@@ -7,7 +7,7 @@ import './styles/layout.css';
 import './infrastructure/update-variables';
 
 const app = mount(App, {
-  target: document.body,
+  target: document.body
 });
 
 export default app;

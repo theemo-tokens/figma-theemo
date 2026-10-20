@@ -16,7 +16,7 @@ import {
   brandCollection,
   VARIABLE_ID,
   ALIAS_TARGET_ID,
-  MODE_LIGHT,
+  MODE_LIGHT
 } from './fixtures';
 
 interface Sent {
@@ -49,9 +49,9 @@ function seedAliasScenario() {
         variableId: VARIABLE_ID,
         modeId: MODE_LIGHT,
         referenceId: ALIAS_TARGET_ID,
-        transforms: {},
-      },
-    ],
+        transforms: {}
+      }
+    ]
   });
 }
 
@@ -71,7 +71,7 @@ describe('Styles panel', () => {
     render(Styles);
 
     expect(sent.map((msg) => msg.command)).toEqual(
-      expect.arrayContaining(['collect-collections', 'collect-variables', CommandName.ReadConfig]),
+      expect.arrayContaining(['collect-collections', 'collect-variables', CommandName.ReadConfig])
     );
   });
 
@@ -154,7 +154,7 @@ describe('Color detail: variable-bound styles', () => {
     await fireEvent.click(screen.getByRole('option', { name: 'Brand Red' }));
 
     await fireEvent.change(screen.getByPlaceholderText('Hue'), {
-      target: { value: '45' },
+      target: { value: '45' }
     });
 
     expect(last(sent, CommandName.SaveTransforms)).toEqual({
@@ -162,8 +162,8 @@ describe('Color detail: variable-bound styles', () => {
       data: {
         variableId: VARIABLE_ID,
         modeId: MODE_LIGHT,
-        transforms: { hue: 45 },
-      },
+        transforms: { hue: 45 }
+      }
     });
   });
 
@@ -178,9 +178,9 @@ describe('Color detail: variable-bound styles', () => {
           variableId: VARIABLE_ID,
           modeId: MODE_LIGHT,
           referenceId: ALIAS_TARGET_ID,
-          transforms: { hue: 10 },
-        },
-      ],
+          transforms: { hue: 10 }
+        }
+      ]
     });
     const sent = captureCommands();
 
@@ -194,7 +194,7 @@ describe('Color detail: variable-bound styles', () => {
 
     expect(last(sent, CommandName.DeleteTransforms)).toEqual({
       command: CommandName.DeleteTransforms,
-      data: { variableId: VARIABLE_ID, modeId: MODE_LIGHT },
+      data: { variableId: VARIABLE_ID, modeId: MODE_LIGHT }
     });
   });
 });
@@ -233,7 +233,7 @@ describe('EffectAndText detail: references', () => {
 
     expect(last(sent, CommandName.LinkReference)).toEqual({
       command: CommandName.LinkReference,
-      data: { styleId: '2:2', referenceId: '2:1' },
+      data: { styleId: '2:2', referenceId: '2:1' }
     });
   });
 
@@ -241,7 +241,7 @@ describe('EffectAndText detail: references', () => {
     resetBus([textColor('2:1', 'Headline'), textColor('2:2', 'Body')]);
     emit(EventName.ConfigArrived, {
       styles: [{ styleId: '2:2', referenceId: '2:1' }],
-      variables: [],
+      variables: []
     });
     const sent = captureCommands();
     render(Styles);
@@ -257,7 +257,7 @@ describe('EffectAndText detail: references', () => {
 
     expect(last(sent, CommandName.UnlinkReference)).toEqual({
       command: CommandName.UnlinkReference,
-      data: { styleId: '2:2' },
+      data: { styleId: '2:2' }
     });
   });
 

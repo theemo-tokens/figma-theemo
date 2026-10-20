@@ -9,7 +9,7 @@ export default class DeleteTransformsCommand extends Command {
   execute(data: Commands[CommandName.DeleteTransforms]) {
     const config = readConfig();
     const existing = config.variables.find(
-      (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId,
+      (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId
     );
 
     if (existing) {

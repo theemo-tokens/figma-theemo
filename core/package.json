@@ -4,11 +4,20 @@
   "description": "",
   "license": "MIT",
   "author": "Thomas Gossmann",
+  "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt",
+    "lint": "pnpm run '/^lint:(js|types)$/'",
+    "lint:fix": "pnpm run '/^lint:.*:fix$/'",
+    "lint:js": "oxlint .",
+    "lint:js:fix": "oxlint . --fix",
+    "lint:types": "tsc --noEmit"
   },
   "devDependencies": {
     "@figma/plugin-typings": "catalog:lib",
+    "oxfmt": "catalog:tooling",
+    "oxlint": "catalog:tooling",
     "typescript": "catalog:build"
   }
 }

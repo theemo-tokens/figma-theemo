@@ -1,5 +1,5 @@
 export function getIdFromChange(
-  change: StyleCreateChange | StylePropertyChange | StyleDeleteChange,
+  change: StyleCreateChange | StylePropertyChange | StyleDeleteChange
 ) {
   const { id } = change;
   const parts = id.split(',');

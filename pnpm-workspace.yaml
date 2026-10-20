@@ -13,6 +13,9 @@ catalogs:
     vite-plugin-singlefile: ^2.3.4
     vite-plugin-svgo: ^3.0.2
     typescript: ^6.0.3
+  tooling:
+    oxlint: 1.89.0
+    oxfmt: 0.74.0
   frontend:
     '@sveltejs/vite-plugin-svelte': ^7.3.1
     '@tsconfig/svelte': ^5.0.8

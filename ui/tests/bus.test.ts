@@ -8,7 +8,7 @@ import {
   variables,
   getColorAsCSS,
   hasReference,
-  getVariableConfig,
+  getVariableConfig
 } from '../src/sections/styles/data';
 import { EventName } from '@theemo-figma/core/styles/events';
 import {
@@ -18,7 +18,7 @@ import {
   effectColor,
   resetBus,
   VARIABLE_ID,
-  MODE_LIGHT,
+  MODE_LIGHT
 } from './fixtures';
 import type { StyleDescriptor } from '@theemo-figma/core/styles/index';
 
@@ -28,7 +28,7 @@ describe('message bus -> style stores', () => {
       solidColor('1:1', 'Red'),
       solidColor('1:2', 'Blue', { r: 0, g: 0, b: 1 }),
       textColor('2:1', 'Headline'),
-      effectColor('3:1', 'Drop Shadow'),
+      effectColor('3:1', 'Drop Shadow')
     ]);
 
     expect(get(colors).map((s) => s.name)).toEqual(['Red', 'Blue']);
@@ -87,9 +87,9 @@ describe('message bus -> config stores', () => {
           variableId: VARIABLE_ID,
           modeId: MODE_LIGHT,
           referenceId: 'VariableID:42:2',
-          transforms: { hue: 10 },
-        },
-      ],
+          transforms: { hue: 10 }
+        }
+      ]
     };
 
     emit(EventName.ConfigArrived, config);
@@ -106,9 +106,9 @@ describe('message bus -> config stores', () => {
           variableId: VARIABLE_ID,
           modeId: MODE_LIGHT,
           referenceId: 'VariableID:42:2',
-          transforms: { hue: 10 },
-        },
-      ],
+          transforms: { hue: 10 }
+        }
+      ]
     });
 
     const variable = { id: VARIABLE_ID } as Variable;
@@ -127,7 +127,7 @@ describe('getColorAsCSS', () => {
   test('converts solid paints to rgb css with opacity', () => {
     expect(getColorAsCSS(paint(solidColor('1:1', 'Red')))).toBe('rgb(255, 0, 0, 1)');
     expect(getColorAsCSS(paint(solidColor('1:2', 'Blue', { r: 0, g: 0, b: 1 })))).toBe(
-      'rgb(0, 0, 255, 1)',
+      'rgb(0, 0, 255, 1)'
     );
   });
 
@@ -135,7 +135,7 @@ describe('getColorAsCSS', () => {
     const gradient = {
       id: '1:1',
       name: 'Shine',
-      style: { type: 'PAINT', paints: [{ type: 'GRADIENT_LINEAR' }] },
+      style: { type: 'PAINT', paints: [{ type: 'GRADIENT_LINEAR' }] }
     } as unknown as StyleDescriptor;
 
     expect(getColorAsCSS(paint(gradient))).toBeUndefined();

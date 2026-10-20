@@ -12,11 +12,11 @@ export default defineConfig(({ mode }) => ({
     svelte(),
     viteSingleFile(),
     svg({
-      plugins: ['preset-default', 'removeDimensions'],
-    }),
+      plugins: ['preset-default', 'removeDimensions']
+    })
   ],
   build: {
-    outDir: '../dist',
+    outDir: '../dist'
   },
   // Vitest's SSR-style pipeline would resolve Svelte to its server build
   // (no mount()); pin the browser build there. Production builds must keep
@@ -31,8 +31,8 @@ export default defineConfig(({ mode }) => ({
       // svelte packages ship uncompiled sources; keep them in vite's module
       // graph (not Node SSR) so the browser build above gets used
       deps: {
-        inline: [/svelte/, /figma-ui3-kit-svelte/, /@testing-library/],
-      },
-    },
-  },
+        inline: [/svelte/, /figma-ui3-kit-svelte/, /@testing-library/]
+      }
+    }
+  }
 }));

@@ -8,7 +8,7 @@ export function hasBoundVariable(style: PaintStyle) {
     paints.length > 0 &&
     paints[0].type === 'SOLID' &&
     (paints[0] as SolidPaint).boundVariables !== undefined &&
-    ((paints[0] as SolidPaint).boundVariables as BoundVariables)['color'],
+    ((paints[0] as SolidPaint).boundVariables as BoundVariables)['color']
   );
 }
 
@@ -54,7 +54,7 @@ export function applyTransforms(value: RGBA, transforms: PaintTransforms): RGBA 
     r: color.rgba.r / 255,
     g: color.rgba.g / 255,
     b: color.rgba.b / 255,
-    a: color.rgba.a,
+    a: color.rgba.a
   };
 }
 

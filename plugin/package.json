@@ -4,12 +4,19 @@
   "description": "",
   "license": "MIT",
   "author": "Thomas Gossmann",
+  "type": "module",
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt",
+    "lint": "pnpm run '/^lint:(js|types)$/'",
+    "lint:fix": "pnpm run '/^lint:.*:fix$/'",
+    "lint:js": "oxlint .",
+    "lint:js:fix": "oxlint . --fix",
+    "lint:types": "tsc --noEmit"
   },
   "dependencies": {
     "@theemo-figma/core": "workspace:../core",
@@ -18,6 +25,8 @@
   "devDependencies": {
     "@figma/plugin-typings": "catalog:lib",
     "figma-api-stub": "catalog:lib",
+    "oxfmt": "catalog:tooling",
+    "oxlint": "catalog:tooling",
     "typescript": "catalog:build",
     "vite": "catalog:build",
     "vitest": "catalog:test"

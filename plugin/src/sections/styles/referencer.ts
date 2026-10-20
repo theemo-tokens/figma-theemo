@@ -7,7 +7,7 @@ import {
   copyEffectStyle,
   copyTextStyle,
   findVariableAlias,
-  hasBoundVariable,
+  hasBoundVariable
 } from '../../styles';
 import { findCollection, findVariableFromAlias, getResolvedValue } from '../../variables';
 
@@ -109,6 +109,6 @@ function findReferencesConfig(desc: StyleDescriptor, config: Config) {
 function findVariableConfig(variable: Variable, mode: string, config: Config) {
   return config.variables.find(
     (conf) =>
-      conf.variableId === variable.id && conf.modeId === mode && conf.transforms !== undefined,
+      conf.variableId === variable.id && conf.modeId === mode && conf.transforms !== undefined
   );
 }

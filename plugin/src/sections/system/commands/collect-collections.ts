@@ -7,7 +7,7 @@ export default class CollectCollectionsCommand extends Command {
   execute() {
     this.emitter.sendEvent(
       'collections-collected',
-      figma.variables.getLocalVariableCollections().map(serialize),
+      figma.variables.getLocalVariableCollections().map(serialize)
     );
   }
 }

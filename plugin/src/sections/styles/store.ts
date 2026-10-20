@@ -23,7 +23,7 @@ export function readConfig(): Config {
 
   return {
     styles: [],
-    variables: [],
+    variables: []
   };
 }
 

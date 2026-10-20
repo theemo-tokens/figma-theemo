@@ -8,7 +8,13 @@
     "dev": "vite build --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "svelte-check --tsconfig ./tsconfig.json"
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt",
+    "lint": "pnpm run '/^lint:(js|types)$/'",
+    "lint:fix": "pnpm run '/^lint:.*:fix$/'",
+    "lint:js": "oxlint .",
+    "lint:js:fix": "oxlint . --fix",
+    "lint:types": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
     "@figma/plugin-typings": "catalog:lib",
@@ -20,6 +26,8 @@
     "figma-ui3-kit-svelte": "catalog:lib",
     "jsdom": "catalog:test",
     "makeup-listbox": "catalog:lib",
+    "oxfmt": "catalog:tooling",
+    "oxlint": "catalog:tooling",
     "svelte": "catalog:frontend",
     "svelte-check": "catalog:frontend",
     "typescript": "catalog:build",

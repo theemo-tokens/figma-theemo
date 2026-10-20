@@ -5,7 +5,7 @@ export enum EventName {
   StyleCreated = 'styles.style-created',
   StyleUpdated = 'styles.style-updated',
   StyleDeleted = 'styles.style-deleted',
-  ConfigArrived = 'styles.config-arrived',
+  ConfigArrived = 'styles.config-arrived'
 }
 
 export interface Events {

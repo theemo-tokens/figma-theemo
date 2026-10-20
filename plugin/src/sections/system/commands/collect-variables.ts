@@ -7,7 +7,7 @@ export default class CollectVariablesCommand extends Command {
   execute() {
     this.emitter.sendEvent(
       'variables-collected',
-      figma.variables.getLocalVariables().map(serialize),
+      figma.variables.getLocalVariables().map(serialize)
     );
   }
 }

@@ -4,14 +4,19 @@
   "description": "",
   "license": "MIT",
   "author": "Thomas Gossmann",
+  "type": "module",
   "scripts": {
     "dev": "vp run -r --parallel --no-cache dev",
     "build": "vp run -r build",
     "test": "vp run -r test",
-    "typecheck": "vp run -r typecheck",
-    "check": "vp check"
+    "fmt": "vp run -r fmt && oxfmt --check --disable-nested-config",
+    "fmt:fix": "vp run -r fmt:fix && oxfmt --disable-nested-config",
+    "lint": "vp run -r lint && oxlint --disable-nested-config",
+    "lint:fix": "vp run -r lint:fix && oxlint --disable-nested-config --fix"
   },
   "devDependencies": {
+    "oxfmt": "catalog:tooling",
+    "oxlint": "catalog:tooling",
     "vite-plus": "catalog:build"
   },
   "packageManager": "pnpm@12.6.0"

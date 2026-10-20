@@ -6,7 +6,7 @@ export enum CommandName {
   ReadConfig = 'styles.read-config',
   LinkReference = 'styles.link-reference',
   UnlinkReference = 'styles.unlink-reference',
-  UpdateVariables = 'styles.update-variables',
+  UpdateVariables = 'styles.update-variables'
 }
 
 export interface Commands {

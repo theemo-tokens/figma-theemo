@@ -13,7 +13,7 @@ export default class SaveTransformsCommand extends Command {
   execute(data: Commands[CommandName.SaveTransforms]) {
     const config = readConfig();
     const existing = config.variables.find(
-      (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId,
+      (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId
     );
     let reference: Variable | null;
 
@@ -25,7 +25,7 @@ export default class SaveTransformsCommand extends Command {
       reference = figma.variables.getVariableById(referenceAlias.id);
       const conf: VariableConfig = {
         ...data,
-        referenceId: referenceAlias.id,
+        referenceId: referenceAlias.id
       };
       config.variables.push(conf);
       this.unlinkVariable(data);

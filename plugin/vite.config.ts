@@ -10,13 +10,13 @@ export default defineConfig({
       input: 'src/main.ts',
       output: {
         format: 'iife',
-        entryFileNames: 'main.js',
-      },
-    },
+        entryFileNames: 'main.js'
+      }
+    }
   },
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
-    setupFiles: ['tests/setup.ts'],
-  },
+    setupFiles: ['tests/setup.ts']
+  }
 });

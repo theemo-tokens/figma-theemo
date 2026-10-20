@@ -25,7 +25,7 @@ export class StylesObserver {
     const localStyles = [
       ...figma.getLocalPaintStyles(),
       ...figma.getLocalEffectStyles(),
-      ...figma.getLocalTextStyles(),
+      ...figma.getLocalTextStyles()
     ];
 
     for (const style of localStyles) {
@@ -34,13 +34,13 @@ export class StylesObserver {
         id: style.id,
         name: style.name,
         style,
-        ...filterObject(config, ['id']),
+        ...filterObject(config, ['id'])
       });
     }
 
     this.emitter.sendEvent(
       EventName.StylesInitiated,
-      [...this.descriptors.keys()].map((id) => this.serialize(id)),
+      [...this.descriptors.keys()].map((id) => this.serialize(id))
     );
   }
 
@@ -66,7 +66,7 @@ export class StylesObserver {
       this.descriptors.set(id, {
         id,
         style: change.style as PaintStyle | EffectStyle | TextStyle,
-        name: change.style.name,
+        name: change.style.name
       });
 
       this.emitter.sendEvent(EventName.StyleCreated, this.serialize(id));
@@ -79,7 +79,7 @@ export class StylesObserver {
     if (change.style && this.descriptors.has(id)) {
       this.descriptors.set(id, {
         ...(this.descriptors.get(id) as StyleDescriptor),
-        style: change.style as PaintStyle | EffectStyle | TextStyle,
+        style: change.style as PaintStyle | EffectStyle | TextStyle
       });
 
       this.emitter.sendEvent(EventName.StyleUpdated, this.serialize(id));
@@ -99,8 +99,8 @@ export class StylesObserver {
     return serialize(
       filterObject(
         this.descriptors.get(id) as unknown as Record<string, unknown>,
-        SKIPPED_SERIALIZATION_FIELDS,
-      ),
+        SKIPPED_SERIALIZATION_FIELDS
+      )
     );
   }
 }

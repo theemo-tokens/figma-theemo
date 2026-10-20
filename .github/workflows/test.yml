@@ -27,14 +27,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: 'Format & lint'
-        run: pnpm check
+      - name: Format
+        run: pnpm fmt
 
-      - name: 'Typecheck (tsc + svelte-check)'
-        run: pnpm typecheck
+      - name: Lint
+        run: pnpm lint
 
-      - name: 'Build (before tests: the ui bundle guard reads dist/)'
+      - name: Build
         run: pnpm build
 
-      - name: 'Test (Vitest: plugin + ui)'
+      - name: Test
         run: pnpm test

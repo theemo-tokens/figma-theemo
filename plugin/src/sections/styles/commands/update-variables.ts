@@ -7,12 +7,12 @@ export default class UpdateVariablesCommand extends Command {
 
   execute() {
     const vars = Object.fromEntries(
-      figma.variables.getLocalVariables().map((variable) => [variable.id, serialize(variable)]),
+      figma.variables.getLocalVariables().map((variable) => [variable.id, serialize(variable)])
     );
     figma.root.setPluginData('variables', JSON.stringify(vars));
 
     const collections = Object.fromEntries(
-      figma.variables.getLocalVariableCollections().map((col) => [col.id, serialize(col)]),
+      figma.variables.getLocalVariableCollections().map((col) => [col.id, serialize(col)])
     );
     figma.root.setPluginData('variableCollections', JSON.stringify(collections));
   }

@@ -6,13 +6,13 @@ import { type Config, type StyleDescriptor } from '@theemo-figma/core/styles';
 const styles = writable<StyleDescriptor[]>([]);
 
 export const colors = derived(styles, ($styles) =>
-  $styles.filter((desc) => desc.style.type === 'PAINT'),
+  $styles.filter((desc) => desc.style.type === 'PAINT')
 );
 export const texts = derived(styles, ($styles) =>
-  $styles.filter((desc) => desc.style.type === 'TEXT'),
+  $styles.filter((desc) => desc.style.type === 'TEXT')
 );
 export const effects = derived(styles, ($styles) =>
-  $styles.filter((desc) => desc.style.type === 'EFFECT'),
+  $styles.filter((desc) => desc.style.type === 'EFFECT')
 );
 
 const config = writable<Config>({ styles: [], variables: [] });
