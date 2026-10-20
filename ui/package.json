@@ -11,21 +11,21 @@
     "typecheck": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
-    "@figma/plugin-typings": "catalog:figma",
-    "@sveltejs/vite-plugin-svelte": "catalog:svelte",
-    "@testing-library/svelte": "catalog:testing",
+    "@figma/plugin-typings": "catalog:lib",
+    "@sveltejs/vite-plugin-svelte": "catalog:frontend",
+    "@testing-library/svelte": "catalog:test",
     "@theemo-figma/core": "workspace:../core",
-    "@tsconfig/svelte": "catalog:svelte",
-    "colord": "catalog:utils",
-    "figma-ui3-kit-svelte": "catalog:figma",
-    "jsdom": "catalog:testing",
-    "makeup-listbox": "catalog:utils",
-    "svelte": "catalog:svelte",
-    "svelte-check": "catalog:svelte",
-    "typescript": "catalog:typescript",
-    "vite": "catalog:vite",
-    "vite-plugin-singlefile": "catalog:vite",
-    "vite-plugin-svgo": "catalog:vite",
-    "vitest": "catalog:testing"
+    "@tsconfig/svelte": "catalog:frontend",
+    "colord": "catalog:lib",
+    "figma-ui3-kit-svelte": "catalog:lib",
+    "jsdom": "catalog:test",
+    "makeup-listbox": "catalog:lib",
+    "svelte": "catalog:frontend",
+    "svelte-check": "catalog:frontend",
+    "typescript": "catalog:build",
+    "vite": "catalog:build",
+    "vite-plugin-singlefile": "catalog:build",
+    "vite-plugin-svgo": "catalog:build",
+    "vitest": "catalog:test"
   }
 }

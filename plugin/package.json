@@ -13,13 +13,13 @@
   },
   "dependencies": {
     "@theemo-figma/core": "workspace:../core",
-    "colord": "catalog:utils"
+    "colord": "catalog:lib"
   },
   "devDependencies": {
-    "@figma/plugin-typings": "catalog:figma",
-    "figma-api-stub": "catalog:figma",
-    "typescript": "catalog:typescript",
-    "vite": "catalog:vite",
-    "vitest": "catalog:testing"
+    "@figma/plugin-typings": "catalog:lib",
+    "figma-api-stub": "catalog:lib",
+    "typescript": "catalog:build",
+    "vite": "catalog:build",
+    "vitest": "catalog:test"
   }
 }

@@ -164,20 +164,22 @@ settings:
 
 catalogs:
   build:
+    typescript:
+      specifier: ^6.0.3
+      version: 6.0.3
+    vite:
+      specifier: ^8.3.4
+      version: 8.3.4
+    vite-plugin-singlefile:
+      specifier: ^2.3.4
+      version: 2.3.4
+    vite-plugin-svgo:
+      specifier: ^3.0.2
+      version: 3.0.2
     vite-plus:
       specifier: 1.3.0
       version: 1.3.0
-  figma:
-    '@figma/plugin-typings':
-      specifier: ^1.142.0
-      version: 1.142.0
-    figma-api-stub:
-      specifier: ^0.0.57
-      version: 0.0.57
-    figma-ui3-kit-svelte:
-      specifier: 1.0.0-rc.1
-      version: 1.0.0-rc.1
-  svelte:
+  frontend:
     '@sveltejs/vite-plugin-svelte':
       specifier: ^7.3.1
       version: 7.3.1
@@ -190,7 +192,23 @@ catalogs:
     svelte-check:
       specifier: ^4.7.7
       version: 4.7.7
-  testing:
+  lib:
+    '@figma/plugin-typings':
+      specifier: ^1.142.0
+      version: 1.142.0
+    colord:
+      specifier: ^2.10.0
+      version: 2.10.0
+    figma-api-stub:
+      specifier: ^0.0.57
+      version: 0.0.57
+    figma-ui3-kit-svelte:
+      specifier: 1.0.0-rc.1
+      version: 1.0.0-rc.1
+    makeup-listbox:
+      specifier: ^0.5.1
+      version: 0.5.1
+  test:
     '@testing-library/svelte':
       specifier: ^5.4.2
       version: 5.4.2
@@ -200,27 +218,6 @@ catalogs:
     vitest:
       specifier: ^5.0.5
       version: 5.0.5
-  typescript:
-    typescript:
-      specifier: ^6.0.3
-      version: 6.0.3
-  utils:
-    colord:
-      specifier: ^2.10.0
-      version: 2.10.0
-    makeup-listbox:
-      specifier: ^0.5.1
-      version: 0.5.1
-  vite:
-    vite:
-      specifier: ^8.3.4
-      version: 8.3.4
-    vite-plugin-singlefile:
-      specifier: ^2.3.4
-      version: 2.3.4
-    vite-plugin-svgo:
-      specifier: ^3.0.2
-      version: 3.0.2
 
 importers:
 
@@ -233,10 +230,10 @@ importers:
   core:
     devDependencies:
       '@figma/plugin-typings':
-        specifier: catalog:figma
+        specifier: catalog:lib
         version: 1.142.0
       typescript:
-        specifier: catalog:typescript
+        specifier: catalog:build
         version: 6.0.3
 
   plugin:
@@ -245,74 +242,74 @@ importers:
         specifier: workspace:../core
         version: link:../core
       colord:
-        specifier: catalog:utils
+        specifier: catalog:lib
         version: 2.10.0
     devDependencies:
       '@figma/plugin-typings':
-        specifier: catalog:figma
+        specifier: catalog:lib
         version: 1.142.0
       figma-api-stub:
-        specifier: catalog:figma
+        specifier: catalog:lib
         version: 0.0.57
       typescript:
-        specifier: catalog:typescript
+        specifier: catalog:build
         version: 6.0.3
       vite:
-        specifier: catalog:vite
+        specifier: catalog:build
         version: 8.3.4(@types/node@26.6.5)
       vitest:
-        specifier: catalog:testing
+        specifier: catalog:test
         version: 5.0.5(@types/node@26.6.5)(@vitest/browser-preview@5.0.5)(@vitest/ui@5.0.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5))
 
   ui:
     devDependencies:
       '@figma/plugin-typings':
-        specifier: catalog:figma
+        specifier: catalog:lib
         version: 1.142.0
       '@sveltejs/vite-plugin-svelte':
-        specifier: catalog:svelte
+        specifier: catalog:frontend
         version: 7.3.1(svelte@5.57.2)(vite@8.3.4(@types/node@26.6.5))
       '@testing-library/svelte':
-        specifier: catalog:testing
+        specifier: catalog:test
         version: 5.4.2(svelte@5.57.2)(vite@8.3.4(@types/node@26.6.5))(vitest@5.0.5)
       '@theemo-figma/core':
         specifier: workspace:../core
         version: link:../core
       '@tsconfig/svelte':
-        specifier: catalog:svelte
+        specifier: catalog:frontend
         version: 5.0.8
       colord:
-        specifier: catalog:utils
+        specifier: catalog:lib
         version: 2.10.0
       figma-ui3-kit-svelte:
-        specifier: catalog:figma
+        specifier: catalog:lib
         version: 1.0.0-rc.1(svelte@5.57.2)
       jsdom:
-        specifier: catalog:testing
+        specifier: catalog:test
         version: 30.1.3
       makeup-listbox:
-        specifier: catalog:utils
+        specifier: catalog:lib
         version: 0.5.1
       svelte:
-        specifier: catalog:svelte
+        specifier: catalog:frontend
         version: 5.57.2
       svelte-check:
-        specifier: catalog:svelte
+        specifier: catalog:frontend
         version: 4.7.7(picomatch@4.0.7)(svelte@5.57.2)(typescript@6.0.3)
       typescript:
-        specifier: catalog:typescript
+        specifier: catalog:build
         version: 6.0.3
       vite:
-        specifier: catalog:vite
+        specifier: catalog:build
         version: 8.3.4(@types/node@26.6.5)
       vite-plugin-singlefile:
-        specifier: catalog:vite
+        specifier: catalog:build
         version: 2.3.4(vite@8.3.4(@types/node@26.6.5))
       vite-plugin-svgo:
-        specifier: catalog:vite
+        specifier: catalog:build
         version: 3.0.2(typescript@6.0.3)(vite@8.3.4(@types/node@26.6.5))
       vitest:
-        specifier: catalog:testing
+        specifier: catalog:test
         version: 5.0.5(@types/node@26.6.5)(@vitest/browser-preview@5.0.5)(@vitest/ui@5.0.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5))
 
 packages:

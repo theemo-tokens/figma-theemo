@@ -8,7 +8,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@figma/plugin-typings": "catalog:figma",
-    "typescript": "catalog:typescript"
+    "@figma/plugin-typings": "catalog:lib",
+    "typescript": "catalog:build"
   }
 }
