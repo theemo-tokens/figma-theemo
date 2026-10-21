@@ -1,3 +1,4 @@
+import { isColorValue } from '@theemo-figma/core/colors';
 import { getValueAsHex } from './styles';
 
 export function findVariableFromAlias(alias: VariableAlias) {
@@ -19,18 +20,29 @@ export function getValue(variable: Variable, mode?: string) {
   return variable.valuesByMode[usedMode];
 }
 
-export function isAlias(value: VariableValue): value is VariableAlias {
+export function isAlias(value: VariableValue | null | undefined): value is VariableAlias {
   return (
-    (value as VariableAlias).type !== undefined &&
+    typeof value === 'object' &&
+    value !== null &&
     (value as VariableAlias).type === 'VARIABLE_ALIAS'
   );
 }
 
-export function getResolvedValue(variable: Variable, mode?: string) {
+/** Resolves a chain of variable aliases. Returns null when the chain ends at a
+ *  variable that isn't available locally (deleted or a published-library
+ *  variable - `getLocalVariables()` never lists those). */
+export function getResolvedValue(
+  variable: Variable | undefined | null,
+  mode?: string
+): VariableValue | null {
+  if (!variable) {
+    return null;
+  }
+
   const value = getValue(variable, mode);
 
   if (isAlias(value)) {
-    return getResolvedValue(findVariableFromAlias(value) as Variable, mode);
+    return getResolvedValue(findVariableFromAlias(value), mode);
   }
 
   return value;
@@ -39,5 +51,9 @@ export function getResolvedValue(variable: Variable, mode?: string) {
 export function findColorForVariable(variable: Variable, mode?: string) {
   const value = getResolvedValue(variable, mode);
 
-  return getValueAsHex(value as RGBA);
+  if (!isColorValue(value)) {
+    return 'transparent';
+  }
+
+  return getValueAsHex(value);
 }

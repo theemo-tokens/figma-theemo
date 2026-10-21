@@ -1,4 +1,5 @@
 import { EventName, type Events } from '@theemo-figma/core/styles/events';
+import { isColorValue } from '@theemo-figma/core/colors';
 import Emitter from '../../infrastructure/emitter';
 import { readConfig } from './store';
 import { Config, StyleDescriptor } from '@theemo-figma/core/styles';
@@ -64,7 +65,16 @@ export function updatePaintStyle(data: StyleDescriptor) {
 
       // and check if the reference uses a transform, then apply them
       for (const reference of references) {
-        const refCollection = findCollection(reference) as VariableCollection;
+        // transformed values are colors - only COLOR variables accept them
+        if (reference.resolvedType !== 'COLOR') {
+          continue;
+        }
+
+        const refCollection = findCollection(reference);
+        if (!refCollection) {
+          continue;
+        }
+
         for (const mode of refCollection.modes) {
           // we found config for a reference
           const conf = findVariableConfig(reference, mode.modeId, config);
@@ -74,7 +84,14 @@ export function updatePaintStyle(data: StyleDescriptor) {
               collection.id === refCollection.id ? mode.modeId : collection.defaultModeId;
 
             // find the original value
-            const originValue = getResolvedValue(variable, modeId) as RGBA;
+            const originValue = getResolvedValue(variable, modeId);
+
+            // guard: aliases can resolve to non-color values (or disappear
+            // into published-library variables) - writing a color to those is
+            // what Figma's "newValue failed validation" error reported
+            if (!isColorValue(originValue)) {
+              continue;
+            }
 
             // transform it
             const transformedValue = applyTransforms(originValue, conf.transforms);

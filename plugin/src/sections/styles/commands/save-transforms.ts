@@ -2,7 +2,7 @@ import Command from '../../../infrastructure/command';
 import { CommandName, type Commands } from '@theemo-figma/core/styles/commands';
 import { readConfig, storeConfig } from '../store';
 import { VariableConfig } from '@theemo-figma/core/styles';
-import { findVariableFromAlias, getResolvedValue } from '../../../variables';
+import { findVariableFromAlias, getResolvedValue, isAlias } from '../../../variables';
 import { findVariableAlias, hasBoundVariable } from '../../../styles';
 import { updatePaintStyle } from '../referencer';
 import { EventName } from '@theemo-figma/core/styles/events';
@@ -22,6 +22,11 @@ export default class SaveTransformsCommand extends Command {
       reference = figma.variables.getVariableById(existing.referenceId);
     } else {
       const referenceAlias = this.findReference(data);
+
+      if (!referenceAlias) {
+        return;
+      }
+
       reference = figma.variables.getVariableById(referenceAlias.id);
       const conf: VariableConfig = {
         ...data,
@@ -54,14 +59,27 @@ export default class SaveTransformsCommand extends Command {
     this.emitter.sendEvent(EventName.ConfigArrived, config);
   }
 
-  findReference(data: Commands[CommandName.SaveTransforms]): VariableAlias {
-    const variable = figma.variables.getVariableById(data.variableId) as Variable;
-    return variable.valuesByMode[data.modeId] as VariableAlias;
+  findReference(data: Commands[CommandName.SaveTransforms]): VariableAlias | undefined {
+    const variable = figma.variables.getVariableById(data.variableId);
+    const value = variable && variable.valuesByMode[data.modeId];
+
+    // only a real alias can serve as the reference for transforms
+    if (value && isAlias(value)) {
+      return value;
+    }
   }
 
   unlinkVariable(data: Commands[CommandName.SaveTransforms]) {
-    const variable = figma.variables.getVariableById(data.variableId) as Variable;
+    const variable = figma.variables.getVariableById(data.variableId);
+    if (!variable) {
+      return;
+    }
+
     const value = getResolvedValue(variable, data.modeId);
-    variable.setValueForMode(data.modeId, value);
+
+    // nothing to unlink when the chain dead-ends in a remote/deleted variable
+    if (value !== null) {
+      variable.setValueForMode(data.modeId, value);
+    }
   }
 }

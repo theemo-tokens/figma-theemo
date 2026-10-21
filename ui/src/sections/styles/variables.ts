@@ -1,4 +1,5 @@
 import { writable, get } from 'svelte/store';
+import { isColorValue } from '@theemo-figma/core/colors';
 import { messenger } from '../../infrastructure';
 import { colord } from 'colord';
 
@@ -27,15 +28,37 @@ export function findCollection(variable: Variable) {
 
 export function getValue(variable: Variable, mode?: string) {
   const collection = findCollection(variable);
-  const usedMode = mode ?? collection!.defaultModeId;
-  return variable.valuesByMode[usedMode];
+  const usedMode = mode ?? collection?.defaultModeId;
+
+  return usedMode === undefined ? undefined : variable.valuesByMode[usedMode];
 }
 
-export function isAlias(value: VariableValue): value is VariableAlias {
+export function isAlias(value: VariableValue | null | undefined): value is VariableAlias {
   return (
-    (value as VariableAlias).type !== undefined &&
+    typeof value === 'object' &&
+    value !== null &&
     (value as VariableAlias).type === 'VARIABLE_ALIAS'
   );
+}
+
+/** Resolves a chain of variable aliases. Returns null when the chain ends at a
+ *  variable that isn't in the collected list (deleted or published-library
+ *  variables are not reported to the plugin UI). */
+export function getResolvedValue(
+  variable: Variable | undefined | null,
+  mode?: string
+): VariableValue | null {
+  if (!variable) {
+    return null;
+  }
+
+  const value = getValue(variable, mode);
+
+  if (isAlias(value)) {
+    return getResolvedValue(findVariableFromAlias(value), mode);
+  }
+
+  return value ?? null;
 }
 
 export function getValueAsHex(value: RGB | RGBA) {
@@ -46,11 +69,11 @@ export function getValueAsHex(value: RGB | RGBA) {
 }
 
 export function findColorForVariable(variable: Variable, mode?: string) {
-  const value = getValue(variable, mode);
+  const value = getResolvedValue(variable, mode);
 
-  if (isAlias(value)) {
-    return findColorForVariable(findVariableFromAlias(value)!);
+  if (!isColorValue(value)) {
+    return 'transparent';
   }
 
-  return getValueAsHex(value as RGBA);
+  return getValueAsHex(value);
 }
