@@ -19,12 +19,12 @@ export function listen(emitter: Emitter) {
   emitter.on(EventName.StyleDeleted, deleteStyle);
 }
 
-type CopyStyle<S extends BaseStyle = BaseStyle> = (from: S, to: S) => void;
+type CopyStyle<S extends BaseStyle = BaseStyle> = (from: S, to: S) => void | Promise<void>;
 
 function updateStyle(data: Events[EventName.StyleUpdated]) {
   // effect + text styles
   if (data.style.type === 'EFFECT' || data.style.type === 'TEXT') {
-    updateTextAndEffectStyle(data);
+    updateTextAndEffectStyle(data).catch((e) => console.log('style update failed', e));
   }
 
   // paint styles
@@ -33,7 +33,7 @@ function updateStyle(data: Events[EventName.StyleUpdated]) {
   }
 }
 
-function updateTextAndEffectStyle(data: StyleDescriptor) {
+async function updateTextAndEffectStyle(data: StyleDescriptor) {
   const config = readConfig();
   const references = findReferencesConfig(data, config);
   // @ts-ignore
@@ -41,13 +41,15 @@ function updateTextAndEffectStyle(data: StyleDescriptor) {
     data.style.type === 'EFFECT' ? copyEffectStyle : copyTextStyle;
   const locals: BaseStyle[] =
     data.style.type === 'EFFECT' ? figma.getLocalEffectStyles() : figma.getLocalTextStyles();
-  if (references.length > 0) {
+
+  await Promise.all(
     references
-      // find styles to update
+      // find styles to update - skip references pointing at deleted styles
       .map((ref) => locals.find((style) => style.id === ref.styleId))
-      // update them
-      .forEach((to) => copy(data.style as EffectStyle | TextStyle, to as EffectStyle | TextStyle));
-  }
+      .filter((style): style is TextStyle | EffectStyle => style !== undefined)
+      // update them (the text copy loads fonts asynchronously)
+      .map((to) => copy(data.style as EffectStyle | TextStyle, to))
+  );
 }
 
 export function updatePaintStyle(data: StyleDescriptor) {

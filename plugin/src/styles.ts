@@ -83,8 +83,22 @@ export function copyEffectStyle(from: EffectStyle, to: EffectStyle) {
   }
 }
 
-export function copyTextStyle(from: TextStyle, to: TextStyle) {
+/**
+ * Figma rejects every write on a text style whose fonts aren't loaded into
+ * the plugin ("Cannot write to node with unloaded font") - not just the
+ * `fontName` itself, but also `fontSize`, `lineHeight`, etc. So both the
+ * style's current font and the incoming one must be loaded before copying,
+ * otherwise the referenced style keeps its old values. Loading is cached and
+ * an unavailable font rejects; that must not abort the copy of the styles
+ * that do work, so settle instead of all.
+ */
+export async function copyTextStyle(from: TextStyle, to: TextStyle) {
+  await Promise.allSettled([figma.loadFontAsync(from.fontName), figma.loadFontAsync(to.fontName)]);
+
   try {
+    // fontName first: every following write validates against the style's
+    // (now loaded) font
+    to.fontName = from.fontName;
     to.fontSize = from.fontSize;
     to.letterSpacing = from.letterSpacing;
     to.lineHeight = from.lineHeight;
@@ -92,10 +106,13 @@ export function copyTextStyle(from: TextStyle, to: TextStyle) {
     to.paragraphSpacing = from.paragraphSpacing;
     to.textCase = from.textCase;
     to.textDecoration = from.textDecoration;
-    to.fontName = from.fontName;
+    to.leadingTrim = from.leadingTrim;
+    to.textWrapStyle = from.textWrapStyle;
+    to.listSpacing = from.listSpacing;
+    to.hangingPunctuation = from.hangingPunctuation;
+    to.hangingList = from.hangingList;
   } catch {
-    figma.loadFontAsync(from.fontName).then(() => {
-      to.fontName = from.fontName;
-    });
+    // best effort: a style carrying a font we couldn't load stays untouched
+    console.log('could not copy text style', to.name);
   }
 }
