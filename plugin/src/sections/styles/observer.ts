@@ -14,7 +14,7 @@ export class StylesObserver {
   private config: Config;
 
   constructor(private emitter: Emitter) {
-    figma.on('documentchange', this.listen.bind(this));
+    figma.on('stylechange', this.listen.bind(this));
 
     this.config = readConfig();
 
@@ -44,8 +44,8 @@ export class StylesObserver {
     );
   }
 
-  private listen(e: DocumentChangeEvent) {
-    for (const change of e.documentChanges) {
+  private listen(e: StyleChangeEvent) {
+    for (const change of e.styleChanges) {
       if (change.type === 'STYLE_CREATE') {
         this.create(change);
       }
