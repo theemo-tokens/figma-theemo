@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Input } from 'figma-ui3-kit-svelte';
-  import VariablePill from './VariablePill.svelte';
+  import { NumericInput } from 'figma-ui3-kit-svelte';
+  import ColorVariable from './ColorVariable.svelte';
   import { findCollection, getValue, isAlias } from './variables';
   import { hasReference, variables } from './data';
   import { messenger } from '../../infrastructure';
@@ -34,17 +34,15 @@
   const opacity = $derived(transforms.opacity);
 
   function updateTransforms(prop: 'hue' | 'saturation' | 'lightness' | 'opacity') {
-    return function (event: Event) {
-      const number = Number.parseInt((event.target as HTMLInputElement).value, 10);
-
+    return function (value: number | null) {
       // clone, mutate – transforms are derived state
       const next = { ...transforms };
 
       // update
-      if (number) {
-        next[prop] = number;
+      if (value) {
+        next[prop] = value;
       }
-      // delete
+      // delete: NumericInput commits null when the field is emptied
       else if (next[prop] !== undefined) {
         delete next[prop];
       }
@@ -67,57 +65,44 @@
       }
     };
   }
-
-  function modifyTransform(e: KeyboardEvent) {
-    const target = e.target as HTMLInputElement;
-    const number = target.value ? Number.parseInt(target.value, 10) ?? 0 : 0;
-
-    if (e.code === 'ArrowUp') {
-      target.value = `${number + 1}`;
-      e.preventDefault();
-    }
-    if (e.code === 'ArrowDown') {
-      target.value = `${number - 1}`;
-      e.preventDefault();
-    }
-  }
 </script>
 
 <div class="stack">
   <p class="line">
     {name}
-    <VariablePill {variable} mode={mode.modeId} />
+    <ColorVariable {variable} mode={mode.modeId} />
   </p>
 
   {#if isAlias(value) || hasReference(variable, mode.modeId)}
+    <NumericInput
+      placeholder="Opacity"
+      value={opacity}
+      onchange={updateTransforms('opacity')}
+    />
     <div class="input-group">
-      <Input
+      <NumericInput
+        label="H"
         placeholder="Hue"
         value={hue}
+        min={-360}
+        max={360}
         onchange={updateTransforms('hue')}
-        onblur={updateTransforms('hue')}
-        onkeydown={modifyTransform}
       />
-      <Input
+      <NumericInput
+        label="S"
         placeholder="Saturation"
         value={saturation}
+        min={-100}
+        max={100}
         onchange={updateTransforms('saturation')}
-        onblur={updateTransforms('saturation')}
-        onkeydown={modifyTransform}
       />
-      <Input
+      <NumericInput
+        label="L"
         placeholder="Lightness"
         value={lightness}
+        min={-100}
+        max={100}
         onchange={updateTransforms('lightness')}
-        onblur={updateTransforms('lightness')}
-        onkeydown={modifyTransform}
-      />
-      <Input
-        placeholder="Opacity"
-        value={opacity}
-        onchange={updateTransforms('opacity')}
-        onblur={updateTransforms('opacity')}
-        onkeydown={modifyTransform}
       />
     </div>
   {/if}
@@ -131,8 +116,8 @@
   }
 
   .input-group {
-    display: flex;
     gap: 4px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
   }
 </style>

@@ -2,7 +2,7 @@
   import type { StyleDescriptor } from '@theemo-figma/core/styles/index';
   import { findVariableFromAlias, findCollection } from './variables';
   import Mode from './Mode.svelte';
-  import VariableName from './VariableName.svelte';
+  import { VariablePill } from 'figma-ui3-kit-svelte';
 
   let { style }: { style: StyleDescriptor } = $props();
 
@@ -24,7 +24,7 @@
   <div class="stack" style="--stack-space: 16px;">
     <div class="stack" style="--stack-space: 4px;">
       <p class="description">Uses Variable</p>
-      <div><VariableName {variable} /></div>
+      <div><VariablePill label={variable.name} /></div>
     </div>
 
     {#each collection.modes as mode}

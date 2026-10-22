@@ -1,17 +1,17 @@
 <script lang="ts">
   import type { StyleDescriptor } from '@theemo-figma/core/styles/index';
-  import Swatch from './Swatch.svelte';
 
-  import { Icon } from 'figma-ui3-kit-svelte';
+  import { Icon, Chit } from 'figma-ui3-kit-svelte';
   import { IconTextSmall } from 'figma-ui3-kit-svelte/icons';
   import IconEffects from 'figma-ui3-kit-svelte/src/icons/24/icon.24.effects.small.svg';
+  import { getColorAsCSS } from './data';
 
   let { style }: { style: StyleDescriptor } = $props();
 </script>
 
 <span class="style">
   {#if style.style.type === 'PAINT'}
-    <Swatch style={style.style} />
+    <Chit color={getColorAsCSS(style.style)} shape="circle"/>
   {:else if style.style.type === 'EFFECT'}
     <Icon iconName={IconEffects} size={16} class="style-icon" />
   {:else if style.style.type === 'TEXT'}
@@ -24,7 +24,7 @@
 <style>
   .style {
     display: flex;
-    gap: 8px;
+    gap: 2px;
     align-items: center;
   }
 </style>

@@ -1,0 +1,82 @@
+diff --git a/src/components/NumericInput/index.svelte b/src/components/NumericInput/index.svelte
+index f62c02ba16e20a1722184b6019cd18dad96b575c..0c5194357043d217c12e2c3accc771934481b70d 100644
+--- a/src/components/NumericInput/index.svelte
++++ b/src/components/NumericInput/index.svelte
+@@ -6,11 +6,13 @@
+   - ArrowUp/ArrowDown step the value (Shift: ×10); Enter commits and keeps focus,
+     Escape reverts. Simple arithmetic is accepted: `24*2`, `100/3`, `16+8`.
+   - The value is clamped to `min`/`max` and rounded to `precision` decimals. An
+-    empty or unparseable entry reverts; `value = null` shows the placeholder
+-    ("Mixed", say).
++    unparseable entry reverts; committing an emptied field clears the value
++    (`onchange(null)`); `value = null` shows the placeholder ("Mixed", say).
+   - `options` adds a chevron that opens a list of presets (Figma's "Combo input").
+ 
+   `oninput` is called while scrubbing, `onchange` whenever a value is committed.
++  Committing happens on the input's change (typing plus blur or Enter), arrow
++  keys, presets and scrub end.
+ -->
+ <script lang="ts">
+   import { onDestroy, tick } from 'svelte';
+@@ -49,8 +51,9 @@
+     /** A bound variable's name: shown as a pill in place of the value, with a detach button */
+     variable?: string | null;
+     class?: string;
+-    /** A committed value, after `value` updates */
+-    onchange?: (value: number) => void;
++    /** A committed value, after `value` updates; `null` when the field was
++     * deliberately emptied, which clears the value */
++    onchange?: (value: number | null) => void;
+     /** While scrubbing, after `value` updates */
+     oninput?: (value: number) => void;
+     /** The detach button, or a preset picked while bound: the variable's name */
+@@ -147,6 +150,23 @@
+     }
+   }
+ 
++  // An emptied field is a deliberate clear: the value goes and the parent
++  // hears `onchange(null)`. Garbage that doesn't parse stays reverted, as before.
++  function commitText(source: string) {
++    if (source.trim() === '') {
++      clear();
++      return;
++    }
++    commit(evaluate(source));
++  }
++
++  function clear() {
++    text = '';
++    if (numeric == null) return;
++    value = null;
++    onchange?.(null);
++  }
++
+   function handleKeydown(event: KeyboardEvent) {
+     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+       event.preventDefault();
+@@ -156,7 +176,7 @@
+       input?.select();
+     } else if (event.key === 'Enter') {
+       event.preventDefault();
+-      commit(evaluate(text));
++      commitText(text);
+       input?.select();
+     } else if (event.key === 'Escape') {
+       // Undoes the field alone: a modal it's in stays open
+@@ -174,7 +194,7 @@
+ 
+   function handleBlur() {
+     focused = false;
+-    commit(evaluate(text));
++    commitText(text);
+   }
+ 
+   // A click that focuses the field keeps the whole value selected, as a tab does.
+@@ -333,6 +353,7 @@
+           handleBlur();
+           onblur?.(event);
+         }}
++        onchange={(event) => commitText(event.currentTarget.value)}
+         onmouseup={handleMouseUp}
+       />
+       {#if unit && text !== ''}

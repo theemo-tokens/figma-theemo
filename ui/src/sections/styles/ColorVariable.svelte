@@ -1,5 +1,5 @@
 <script lang="ts">
-  import VariableName from './VariableName.svelte';
+  import { Chit, VariablePill } from 'figma-ui3-kit-svelte';
   import { getVariableConfig, hasReference } from './data';
   import {
     findColorForVariable,
@@ -25,12 +25,12 @@
 </script>
 
 <span class="variable">
-  <span class="color-swatch" style="--value: {color}"></span>
-
+  <Chit color={color} shape={isAlias(value) || reference ? "square" : "circle"}/>
+  
   {#if isAlias(value)}
-    <VariableName variable={findVariableFromAlias(value)!} />
+    <VariablePill label={findVariableFromAlias(value)!.name} />
   {:else if reference}
-    <VariableName variable={findVariableById(config!.referenceId)!} />
+    <VariablePill label={findVariableById(config!.referenceId)!.name} />
   {:else}
     {color}
   {/if}
@@ -41,15 +41,6 @@
     font-variant-numeric: tabular-nums;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-  }
-
-  .color-swatch {
-    display: inline-block;
-    border-radius: 1px;
-    width: 16px;
-    height: 16px;
-    background: var(--value);
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 0px 1px inset;
+    gap: 2px;
   }
 </style>

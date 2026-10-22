@@ -82,7 +82,8 @@ describe('Styles panel', () => {
     const { container } = render(Styles);
 
     expect(screen.getAllByText('Red').length).toBeGreaterThanOrEqual(1);
-    const swatches = container.querySelectorAll('.color-swatch');
+    // kit Chit: the color lives on the inner swatch as a --chit-solid custom property
+    const swatches = container.querySelectorAll('.chit .swatch');
     expect(swatches[0].getAttribute('style')).toContain('rgb(255, 0, 0');
   });
 

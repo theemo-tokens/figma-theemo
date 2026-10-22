@@ -31,3 +31,5 @@ catalogs:
     '@figma/plugin-typings': ^1.142.0
     figma-api-stub: ^0.0.57
     figma-ui3-kit-svelte: 1.0.0-rc.1
+patchedDependencies:
+  figma-ui3-kit-svelte@1.0.0-rc.1: patches/figma-ui3-kit-svelte@1.0.0-rc.1.patch
