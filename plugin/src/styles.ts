@@ -39,6 +39,10 @@ const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const numeric = (amount: number | undefined): number =>
   typeof amount === 'number' && Number.isFinite(amount) ? amount : 0;
 
+/** Applies a PaintTransforms set in theemo's units:
+ *  - hue: degrees, shifted directly (theemo's CSS output: `calc(h + hue)`)
+ *  - saturation, lightness, opacity: percentage points (-100..100), which
+ *    is why they divide by 100 for colord's 0..1 HSL channels. */
 export function applyTransforms(value: RGBA, transforms: PaintTransforms): RGBA {
   let color = valueToColord(value);
 
@@ -52,7 +56,7 @@ export function applyTransforms(value: RGBA, transforms: PaintTransforms): RGBA 
   }
 
   if (hue) {
-    color = color.rotate(hue / 100);
+    color = color.rotate(hue);
   }
 
   if (saturation) {

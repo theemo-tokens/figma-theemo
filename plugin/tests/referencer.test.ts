@@ -3,6 +3,7 @@ import { EventName } from '@theemo-figma/core/styles/events';
 import Emitter from '../src/infrastructure/emitter';
 import { listen } from '../src/sections/styles/referencer';
 import { storeConfig } from '../src/sections/styles/store';
+import { applyTransforms } from '../src/styles';
 
 const INTER = { family: 'Inter', style: 'Regular' };
 const ROBOTO = { family: 'Roboto Mono', style: 'Regular' };
@@ -186,5 +187,92 @@ describe('referencer | text style references', () => {
     await flush();
 
     expect(body.fontSize).toBe(24);
+  });
+});
+
+describe('referencer | paint variable references', () => {
+  test('re-derives consuming variables when the origin style updates', () => {
+    const setValueForMode = vi.fn();
+
+    const origin = {
+      id: 'V:origin',
+      name: 'base/red',
+      resolvedType: 'COLOR',
+      variableCollectionId: 'C:base',
+      valuesByMode: { '0:1': { r: 1, g: 0, b: 0 } }
+    };
+    const consuming = {
+      id: 'V:consuming',
+      name: 'brand/red',
+      resolvedType: 'COLOR',
+      variableCollectionId: 'C:brand',
+      valuesByMode: {},
+      setValueForMode
+    };
+
+    (globalThis as any).figma.variables = {
+      getVariableById: (id: string) => [origin, consuming].find((v) => v.id === id),
+      getLocalVariables: () => [origin, consuming],
+      getLocalVariableCollections: () => [
+        {
+          id: 'C:base',
+          name: 'Base',
+          defaultModeId: '0:1',
+          modes: [{ modeId: '0:1', name: 'Light' }],
+          variableIds: [origin.id]
+        },
+        {
+          id: 'C:brand',
+          name: 'Brand',
+          defaultModeId: '0:1',
+          modes: [{ modeId: '0:1', name: 'Light' }],
+          variableIds: [consuming.id]
+        }
+      ]
+    };
+
+    storeConfig({
+      styles: [],
+      variables: [
+        // the pair under test, plus an orphan whose target no longer exists
+        {
+          variableId: 'V:consuming',
+          modeId: '0:1',
+          referenceId: 'V:origin',
+          transforms: { lightness: 20 }
+        },
+        {
+          variableId: 'V:gone',
+          modeId: '0:1',
+          referenceId: 'V:origin',
+          transforms: { lightness: 20 }
+        }
+      ]
+    });
+
+    const emitter = new Emitter();
+    listen(emitter);
+
+    // StyleUpdated of a paint style bound to the origin - what the observer
+    // emits when the origin's resolved color changes
+    emitter.sendEvent(EventName.StyleUpdated, {
+      id: 'S:origin,',
+      name: 'Base Red',
+      style: {
+        id: 'S:origin,',
+        name: 'Base Red',
+        type: 'PAINT',
+        paints: [
+          {
+            type: 'SOLID',
+            color: { r: 1, g: 0, b: 0 },
+            boundVariables: { color: { type: 'VARIABLE_ALIAS', id: 'V:origin' } }
+          }
+        ]
+      }
+    } as never);
+
+    const expected = applyTransforms({ r: 1, g: 0, b: 0, a: 1 }, { lightness: 20 });
+    expect(setValueForMode).toHaveBeenCalledWith('0:1', expected);
   });
 });

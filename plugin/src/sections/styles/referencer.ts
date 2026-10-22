@@ -1,16 +1,9 @@
 import { EventName, type Events } from '@theemo-figma/core/styles/events';
-import { isColorValue } from '@theemo-figma/core/colors';
 import Emitter from '../../infrastructure/emitter';
 import { readConfig } from './store';
 import { Config, StyleDescriptor } from '@theemo-figma/core/styles';
-import {
-  applyTransforms,
-  copyEffectStyle,
-  copyTextStyle,
-  findVariableAlias,
-  hasBoundVariable
-} from '../../styles';
-import { findCollection, findVariableFromAlias, getResolvedValue } from '../../variables';
+import { copyEffectStyle, copyTextStyle, findVariableAlias, hasBoundVariable } from '../../styles';
+import { findVariableFromAlias, updateVariable } from '../../variables';
 
 export function listen(emitter: Emitter) {
   // @ts-ignore
@@ -52,69 +45,22 @@ async function updateTextAndEffectStyle(data: StyleDescriptor) {
   );
 }
 
-export function updatePaintStyle(data: StyleDescriptor) {
-  const config = readConfig();
+function updatePaintStyle(data: StyleDescriptor) {
   const style = data.style as PaintStyle;
 
   if (hasBoundVariable(style)) {
     const alias = findVariableAlias(style);
     const variable = alias && findVariableFromAlias(alias);
-    const collection = variable && findCollection(variable);
+    const config = readConfig();
 
-    if (variable && collection) {
-      // find references to that variable
-      const references = findReferencesTo(variable);
-
-      // and check if the reference uses a transform, then apply them
-      for (const reference of references) {
-        // transformed values are colors - only COLOR variables accept them
-        if (reference.resolvedType !== 'COLOR') {
-          continue;
-        }
-
-        const refCollection = findCollection(reference);
-        if (!refCollection) {
-          continue;
-        }
-
-        for (const mode of refCollection.modes) {
-          // we found config for a reference
-          const conf = findVariableConfig(reference, mode.modeId, config);
-
-          if (conf) {
-            const modeId =
-              collection.id === refCollection.id ? mode.modeId : collection.defaultModeId;
-
-            // find the original value
-            const originValue = getResolvedValue(variable, modeId);
-
-            // guard: aliases can resolve to non-color values (or disappear
-            // into published-library variables) - writing a color to those is
-            // what Figma's "newValue failed validation" error reported
-            if (!isColorValue(originValue)) {
-              continue;
-            }
-
-            // transform it
-            const transformedValue = applyTransforms(originValue, conf.transforms);
-
-            // apply it back
-            reference.setValueForMode(mode.modeId, transformedValue);
-          }
-        }
+    if (variable) {
+      // every consuming variable that references the changed origin gets
+      // its transformed value re-derived
+      for (const conf of config.variables.filter((c) => c.referenceId === variable.id)) {
+        updateVariable(conf);
       }
     }
   }
-}
-
-function findReferencesTo(variable: Variable): Variable[] {
-  const config = readConfig();
-  const variables = figma.variables.getLocalVariables();
-
-  return config.variables
-    .filter((varConf) => varConf.referenceId === variable.id)
-    .map((varConf) => variables.find((variable) => variable.id === varConf.variableId) as Variable)
-    .filter(Boolean);
 }
 
 function deleteStyle(data: Events[EventName.StyleDeleted]) {
@@ -123,11 +69,4 @@ function deleteStyle(data: Events[EventName.StyleDeleted]) {
 
 function findReferencesConfig(desc: StyleDescriptor, config: Config) {
   return config.styles.filter((style) => style.referenceId === desc.id);
-}
-
-function findVariableConfig(variable: Variable, mode: string, config: Config) {
-  return config.variables.find(
-    (conf) =>
-      conf.variableId === variable.id && conf.modeId === mode && conf.transforms !== undefined
-  );
 }

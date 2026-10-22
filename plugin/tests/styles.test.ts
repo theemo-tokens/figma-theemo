@@ -1,8 +1,12 @@
 import { describe, test, expect } from 'vitest';
+import { colord } from 'colord';
 import { isColorValue } from '@theemo-figma/core/colors';
 import { applyTransforms } from '../src/styles';
 import { getResolvedValue } from '../src/variables';
 const rgb = { r: 0.8, g: 0.1, b: 0.1, a: 1 };
+
+// applyTransforms hands out 0..1 channels, colord wants 0..255 rgb
+const toHsl = (c: RGBA) => colord({ r: c.r * 255, g: c.g * 255, b: c.b * 255, a: c.a }).toHsl();
 
 describe('applyTransforms', () => {
   test('keeps ordinary transforms within 0..1', () => {
@@ -45,6 +49,26 @@ describe('applyTransforms', () => {
       expect(channel).toBeGreaterThanOrEqual(0);
       expect(channel).toBeLessThanOrEqual(1);
     }
+  });
+
+  test('hue shifts by degrees, matching theemo CSS calc(h + hue)', () => {
+    const red = { r: 1, g: 0, b: 0, a: 1 };
+    const rotated = applyTransforms(red, { hue: 180 });
+
+    // red is hsl(0, 100%, 50%) -> hsl(180, ...) = cyan; the earlier /100
+    // made this a 1.8-degree (invisible) nudge
+    expect(rotated.r).toBeCloseTo(0, 2);
+    expect(rotated.g).toBeCloseTo(1, 2);
+    expect(rotated.b).toBeCloseTo(1, 2);
+
+    const hsl45 = toHsl(applyTransforms(red, { hue: 45 }));
+    expect(hsl45.h).toBeCloseTo(45, 0);
+  });
+
+  test('saturation shifts HSL percentage points', () => {
+    const desaturated = applyTransforms({ r: 1, g: 0, b: 0, a: 1 }, { saturation: -50 });
+
+    expect(toHsl(desaturated).s).toBeCloseTo(50, 0);
   });
 });
 

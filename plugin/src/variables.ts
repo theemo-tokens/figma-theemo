@@ -1,5 +1,6 @@
+import type { VariableConfig } from '@theemo-figma/core/styles';
 import { isColorValue } from '@theemo-figma/core/colors';
-import { getValueAsHex } from './styles';
+import { applyTransforms, getValueAsHex } from './styles';
 
 export function findVariableFromAlias(alias: VariableAlias) {
   return figma.variables.getLocalVariables().find((variable) => variable.id === alias.id);
@@ -56,4 +57,39 @@ export function findColorForVariable(variable: Variable, mode?: string) {
   }
 
   return getValueAsHex(value);
+}
+
+/** The write-back primitive: derive the consuming variable's mode value from
+ *  its referenced origin plus the transforms. Works only on variables - used
+ *  by both the style event propagation (updatePaintStyle) and the
+ *  save-transforms command, so no caller does its own math. */
+export function updateVariable(conf: VariableConfig) {
+  const variable = figma.variables.getVariableById(conf.variableId);
+  const reference = figma.variables.getVariableById(conf.referenceId);
+
+  // transformed values are colors - only COLOR variables accept them
+  if (!variable || !reference || variable.resolvedType !== 'COLOR' || !conf.transforms) {
+    return;
+  }
+
+  const collection = findCollection(variable);
+  const referenceCollection = findCollection(reference);
+
+  if (!collection || !referenceCollection) {
+    return;
+  }
+
+  // same collection: the mode ids align; otherwise read the origin's default
+  const modeId =
+    collection.id === referenceCollection.id ? conf.modeId : referenceCollection.defaultModeId;
+  const originValue = getResolvedValue(reference, modeId);
+
+  // guard: aliases can resolve to non-color values (or disappear into
+  // published-library variables) - writing a color to those is what Figma's
+  // "newValue failed validation" error reported
+  if (!isColorValue(originValue)) {
+    return;
+  }
+
+  variable.setValueForMode(conf.modeId, applyTransforms(originValue, conf.transforms));
 }

@@ -2,9 +2,7 @@ import Command from '../../../infrastructure/command';
 import { CommandName, type Commands } from '@theemo-figma/core/styles/commands';
 import { readConfig, storeConfig } from '../store';
 import { VariableConfig } from '@theemo-figma/core/styles';
-import { findVariableFromAlias, getResolvedValue, isAlias } from '../../../variables';
-import { findVariableAlias, hasBoundVariable } from '../../../styles';
-import { updatePaintStyle } from '../referencer';
+import { getResolvedValue, isAlias, updateVariable } from '../../../variables';
 import { EventName } from '@theemo-figma/core/styles/events';
 
 export default class SaveTransformsCommand extends Command {
@@ -15,11 +13,11 @@ export default class SaveTransformsCommand extends Command {
     const existing = config.variables.find(
       (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId
     );
-    let reference: Variable | null;
+    let conf: VariableConfig;
 
     if (existing) {
       existing.transforms = data.transforms;
-      reference = figma.variables.getVariableById(existing.referenceId);
+      conf = existing;
     } else {
       const referenceAlias = this.findReference(data);
 
@@ -27,8 +25,7 @@ export default class SaveTransformsCommand extends Command {
         return;
       }
 
-      reference = figma.variables.getVariableById(referenceAlias.id);
-      const conf: VariableConfig = {
+      conf = {
         ...data,
         referenceId: referenceAlias.id
       };
@@ -38,22 +35,10 @@ export default class SaveTransformsCommand extends Command {
 
     storeConfig(config);
 
-    // update affected styles
-    if (reference) {
-      const consumingStyles = figma.getLocalPaintStyles().filter((style) => {
-        if (hasBoundVariable(style)) {
-          const alias = findVariableAlias(style);
-          const variable = alias && findVariableFromAlias(alias);
-
-          return variable && variable.id === (reference as Variable).id;
-        }
-        return false;
-      });
-
-      for (const styleToUpdate of consumingStyles) {
-        updatePaintStyle({ style: styleToUpdate, id: styleToUpdate.id, name: styleToUpdate.name });
-      }
-    }
+    // the pair just saved must land right away, whether or not a paint style
+    // happens to be bound to the reference (later origin changes reach it
+    // through the StyleUpdated -> updatePaintStyle path)
+    updateVariable(conf);
 
     // update config in UI
     this.emitter.sendEvent(EventName.ConfigArrived, config);
