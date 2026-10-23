@@ -1,13 +1,11 @@
-# CI for the Vite+ toolchain: everything runs through project-local `vp`
-# (vite-plus devDependency), resolved from node_modules/.bin via package scripts.
-
 name: CI
 
 on:
-  push:
-    branches: [master]
+  workflow_dispatch:
   pull_request:
-    branches: [master]
+  push:
+    branches:
+      - main
 
 jobs:
   ci:
