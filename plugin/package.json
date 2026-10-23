@@ -2,28 +2,33 @@
   "name": "@theemo-figma/plugin",
   "version": "10",
   "description": "",
-  "author": "Thomas Gossmann",
   "license": "MIT",
+  "author": "Thomas Gossmann",
+  "type": "module",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "tsc": "tsc --noEmit -p src",
-    "build": "esbuild src/main.ts --bundle --outfile=../dist/main.js --tsconfig=./tsconfig.json --target=es6",
-    "start": "pnpm run build --watch"
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt",
+    "lint": "pnpm run '/^lint:(js|types)$/'",
+    "lint:fix": "pnpm run '/^lint:.*:fix$/'",
+    "lint:js": "oxlint .",
+    "lint:js:fix": "oxlint . --fix",
+    "lint:types": "tsc --noEmit"
   },
   "dependencies": {
     "@theemo-figma/core": "workspace:../core",
-    "colord": "^2.9.3"
+    "colord": "catalog:lib"
   },
   "devDependencies": {
-    "@figma/plugin-typings": "^1.72.0",
-    "@types/jest": "^25.2.3",
-    "esbuild-jest": "^0.5.0",
-    "figma-api-stub": "^0.0.42",
-    "jest": "^29.6.1",
-    "ts-jest": "^29.1.1",
-    "concurrently": "^6.3.0",
-    "esbuild": "^0.18.11",
-    "typescript": "^5.1.6"
+    "@figma/plugin-typings": "catalog:lib",
+    "figma-api-stub": "catalog:lib",
+    "oxfmt": "catalog:tooling",
+    "oxlint": "catalog:tooling",
+    "typescript": "catalog:build",
+    "vite": "catalog:build",
+    "vitest": "catalog:test"
   }
 }

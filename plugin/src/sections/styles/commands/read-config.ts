@@ -6,9 +6,9 @@ import { EventName } from '@theemo-figma/core/styles/events';
 export default class ReadConfigCommand extends Command {
   NAME = CommandName.ReadConfig;
 
-  execute(data: Commands[CommandName.ReadConfig]) {
+  execute(_data: Commands[CommandName.ReadConfig]) {
     const config = readConfig();
-    
+
     this.emitter.sendEvent(EventName.ConfigArrived, config);
   }
 }

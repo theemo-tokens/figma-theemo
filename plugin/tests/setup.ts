@@ -1,5 +1,4 @@
-// @ts-ignore
+// figma-api-stub ships no usable type declarations
 import { createFigma } from 'figma-api-stub';
 
-// @ts-ignore
-global.figma = createFigma();
+(globalThis as any).figma = createFigma({});

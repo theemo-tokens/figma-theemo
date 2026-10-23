@@ -1,7 +1,7 @@
 .description {
-  font-size: var(--font-size-xsmall);
-  font-weight: var(--font-weight-normal);
-  letter-spacing: var(--font-letter-spacing-pos-xsmall);
-  line-height: var(--line-height);
+  font-size: var(--font-size-11);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--letter-spacing-pos-055);
+  line-height: var(--line-height-16);
   color: var(--figma-color-text-secondary);
 }

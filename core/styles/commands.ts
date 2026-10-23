@@ -1,5 +1,4 @@
-import { Transforms } from '../transforms';
-import { VariableConfig } from './index';
+import type { VariableConfig } from './index';
 
 export enum CommandName {
   SaveTransforms = 'styles.save-transforms',
@@ -7,7 +6,7 @@ export enum CommandName {
   ReadConfig = 'styles.read-config',
   LinkReference = 'styles.link-reference',
   UnlinkReference = 'styles.unlink-reference',
-  UpdateVariables = 'styles.update-variables',
+  UpdateVariables = 'styles.update-variables'
 }
 
 export interface Commands {

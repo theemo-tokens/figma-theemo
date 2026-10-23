@@ -3,7 +3,7 @@ import type { Config } from '@theemo-figma/core/styles/index';
 const CONFIG = '.theemo/config';
 
 function findStyle(): GridStyle | undefined {
-  return figma.getLocalGridStyles().find(style => style.name === CONFIG);
+  return figma.getLocalGridStyles().find((style) => style.name === CONFIG);
 }
 
 function findOrCreateStyle() {

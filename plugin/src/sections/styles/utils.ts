@@ -1,4 +1,6 @@
-export function getIdFromChange(change: StyleCreateChange | StylePropertyChange | StyleDeleteChange) {
+export function getIdFromChange(
+  change: StyleCreateChange | StylePropertyChange | StyleDeleteChange
+) {
   const { id } = change;
   const parts = id.split(',');
   return `${parts[0]},`;

@@ -1,14 +1,13 @@
 type Listener = (data: unknown) => void;
 
 export default class Emitter {
-
   observers: Map<string, Set<Listener>> = new Map();
 
   sendEvent(name: string, data: unknown) {
     figma.ui.postMessage({ event: name, data });
 
     if (this.observers.has(name)) {
-      [...this.observers.get(name)?.values() ?? []].forEach((listener) => listener(data));
+      [...(this.observers.get(name)?.values() ?? [])].forEach((listener) => listener(data));
     }
   }
 

@@ -2,14 +2,22 @@
   "name": "figma-theemo",
   "version": "10",
   "description": "",
-  "author": "Thomas Gossmann",
   "license": "MIT",
+  "author": "Thomas Gossmann",
+  "type": "module",
   "scripts": {
-    "dev": "pnpm --parallel start",
-    "build": "pnpm -r build"
+    "dev": "vp run -r --parallel --no-cache dev",
+    "build": "vp run -r build",
+    "test": "vp run -r test",
+    "fmt": "vp run -r fmt && oxfmt --check --disable-nested-config",
+    "fmt:fix": "vp run -r fmt:fix && oxfmt --disable-nested-config",
+    "lint": "vp run -r lint && oxlint --disable-nested-config",
+    "lint:fix": "vp run -r lint:fix && oxlint --disable-nested-config --fix"
   },
   "devDependencies": {
-    "concurrently": "^6.3.0",
-    "turbo": "^1.10.7"
-  }
+    "oxfmt": "catalog:tooling",
+    "oxlint": "catalog:tooling",
+    "vite-plus": "catalog:build"
+  },
+  "packageManager": "pnpm@12.6.0"
 }

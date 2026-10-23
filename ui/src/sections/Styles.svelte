@@ -1,5 +1,7 @@
-<script>
+<script lang="ts">
   import './styles/variables';
+  import type { Readable } from 'svelte/store';
+  import type { StyleDescriptor } from '@theemo-figma/core/styles/index';
   import { messenger } from '../infrastructure';
   import Section from '../components/Section.svelte';
   import TabBar from '../components/TabBar.svelte';
@@ -10,10 +12,12 @@
   import { colors, texts, effects } from './styles/data';
   import { CommandName } from '@theemo-figma/core/styles/commands';
 
-  let type = 'colors';
-  $: styles = getFromType(type);
+  type StyleType = 'colors' | 'texts' | 'effects';
 
-  function getFromType(type) {
+  let type = $state<StyleType>('colors');
+  let styles = $derived(getFromType(type));
+
+  function getFromType(type: StyleType): Readable<StyleDescriptor[]> {
     switch (type) {
       case 'texts':
         return texts;
@@ -47,13 +51,15 @@
 </TabBar>
 
 <Section>
-  <Layout styles={$styles} let:style>
-    {#if type === 'colors'}
-      <Color {style} />
-    {:else if type === 'texts'}
-      <EffectAndText {style} referenceStyles={$texts} />
-    {:else if type === 'effects'}
-      <EffectAndText {style} referenceStyles={$effects} />
-    {/if}
+  <Layout styles={$styles}>
+    {#snippet children({ style })}
+      {#if type === 'colors'}
+        <Color {style} />
+      {:else if type === 'texts'}
+        <EffectAndText {style} referenceStyles={$texts} />
+      {:else if type === 'effects'}
+        <EffectAndText {style} referenceStyles={$effects} />
+      {/if}
+    {/snippet}
   </Layout>
 </Section>

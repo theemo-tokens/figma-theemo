@@ -1,4 +1,4 @@
-import { Transforms } from '../transforms';
+import type { Transforms } from '../transforms';
 
 export interface StyleDescriptor {
   id: string;

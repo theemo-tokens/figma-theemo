@@ -14,7 +14,7 @@ export class StylesObserver {
   private config: Config;
 
   constructor(private emitter: Emitter) {
-    figma.on('documentchange', this.listen.bind(this));
+    figma.on('stylechange', this.listen.bind(this));
 
     this.config = readConfig();
 
@@ -22,10 +22,14 @@ export class StylesObserver {
   }
 
   private init() {
-    const localStyles = [...figma.getLocalPaintStyles(), ...figma.getLocalEffectStyles(), ...figma.getLocalTextStyles()];
+    const localStyles = [
+      ...figma.getLocalPaintStyles(),
+      ...figma.getLocalEffectStyles(),
+      ...figma.getLocalTextStyles()
+    ];
 
     for (const style of localStyles) {
-      const config = this.config.styles.find(config => config.styleId === style.id) ?? {};
+      const config = this.config.styles.find((config) => config.styleId === style.id) ?? {};
       this.descriptors.set(style.id, {
         id: style.id,
         name: style.name,
@@ -34,11 +38,14 @@ export class StylesObserver {
       });
     }
 
-    this.emitter.sendEvent(EventName.StylesInitiated, [...this.descriptors.keys()].map(id => this.serialize(id)));
+    this.emitter.sendEvent(
+      EventName.StylesInitiated,
+      [...this.descriptors.keys()].map((id) => this.serialize(id))
+    );
   }
 
-  private listen(e: DocumentChangeEvent) {
-    for (const change of e.documentChanges) {
+  private listen(e: StyleChangeEvent) {
+    for (const change of e.styleChanges) {
       if (change.type === 'STYLE_CREATE') {
         this.create(change);
       }
@@ -71,7 +78,7 @@ export class StylesObserver {
 
     if (change.style && this.descriptors.has(id)) {
       this.descriptors.set(id, {
-        ...this.descriptors.get(id) as StyleDescriptor,
+        ...(this.descriptors.get(id) as StyleDescriptor),
         style: change.style as PaintStyle | EffectStyle | TextStyle
       });
 
@@ -89,6 +96,11 @@ export class StylesObserver {
   }
 
   private serialize(id: string) {
-    return serialize(filterObject(this.descriptors.get(id) as unknown as Record<string, unknown>, SKIPPED_SERIALIZATION_FIELDS));
+    return serialize(
+      filterObject(
+        this.descriptors.get(id) as unknown as Record<string, unknown>,
+        SKIPPED_SERIALIZATION_FIELDS
+      )
+    );
   }
 }

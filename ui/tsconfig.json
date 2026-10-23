@@ -13,27 +13,9 @@
      */
     "allowJs": true,
     "checkJs": true,
-    "isolatedModules": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/@figma"
-    ],
-    "baseUrl": "./",
-    "paths": {
-      "@theemo-figma/core": [
-        "../core/*"
-      ],
-      "*": [
-        "./types/*"
-      ]
-    }
+    "isolatedModules": true
   },
-  "include": [
-    "src/**/*.d.ts",
-    "src/**/*.ts",
-    "src/**/*.js",
-    "src/**/*.svelte"
-  ],
+  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
   "references": [
     {
       "path": "./tsconfig.node.json"

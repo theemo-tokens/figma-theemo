@@ -5,17 +5,23 @@ import { type Config, type StyleDescriptor } from '@theemo-figma/core/styles';
 
 const styles = writable<StyleDescriptor[]>([]);
 
-export const colors = derived(styles, $styles => $styles.filter(desc => desc.style.type === 'PAINT'));
-export const texts = derived(styles, $styles => $styles.filter(desc => desc.style.type === 'TEXT'));
-export const effects = derived(styles, $styles => $styles.filter(desc => desc.style.type === 'EFFECT'));
+export const colors = derived(styles, ($styles) =>
+  $styles.filter((desc) => desc.style.type === 'PAINT')
+);
+export const texts = derived(styles, ($styles) =>
+  $styles.filter((desc) => desc.style.type === 'TEXT')
+);
+export const effects = derived(styles, ($styles) =>
+  $styles.filter((desc) => desc.style.type === 'EFFECT')
+);
 
-const config = writable<Config>({ styles: [], variables: []});
+const config = writable<Config>({ styles: [], variables: [] });
 
-export const references = derived(config, $config => $config.styles);
-export const variables = derived(config, $config => $config.variables);
+export const references = derived(config, ($config) => $config.styles);
+export const variables = derived(config, ($config) => $config.variables);
 
 function findIndex(id: string) {
-  return get(styles).findIndex(token => token.id === id);
+  return get(styles).findIndex((token) => token.id === id);
 }
 
 messenger.addListener(EventName.StylesInitiated, (initialStyles: StyleDescriptor[]) => {
@@ -28,7 +34,7 @@ messenger.addListener(EventName.StyleCreated, (style: StyleDescriptor) => {
 
 messenger.addListener(EventName.StyleUpdated, (style: StyleDescriptor) => {
   const index = findIndex(style.id);
-  
+
   if (index !== -1) {
     const updated = get(styles);
     updated[index] = style;
@@ -53,19 +59,15 @@ messenger.addListener(EventName.ConfigArrived, (data: Events[EventName.ConfigArr
 export function getColorAsCSS(style: PaintStyle) {
   if (style.type === 'PAINT' && style.paints[0].type === 'SOLID') {
     const color = style.paints[0].color;
-    const opacity = style.paints[0].opacity
-      ? `, ${style.paints[0].opacity}`
-      : '';
-    return `rgb(${color.r * 255}, ${color.g * 255}, ${
-      color.b * 255
-    }${opacity})`;
+    const opacity = style.paints[0].opacity ? `, ${style.paints[0].opacity}` : '';
+    return `rgb(${color.r * 255}, ${color.g * 255}, ${color.b * 255}${opacity})`;
   }
 }
 
 export function hasReference(variable: Variable, mode?: string) {
-  return get(variables).find(conf => conf.variableId === variable.id && conf.modeId === mode);
+  return get(variables).find((conf) => conf.variableId === variable.id && conf.modeId === mode);
 }
 
 export function getVariableConfig(variable: Variable, mode?: string) {
-  return get(variables).find(conf => conf.variableId === variable.id && conf.modeId === mode);
+  return get(variables).find((conf) => conf.variableId === variable.id && conf.modeId === mode);
 }

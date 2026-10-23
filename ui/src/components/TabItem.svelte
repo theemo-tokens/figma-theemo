@@ -1,40 +1,32 @@
 <script>
-  export let activate;
-  export let active = false;
+  let { activate, active = false, children, ...rest } = $props();
 </script>
 
-<span class="tab" on:click={activate} class:active {...$$props}>
-  <slot />
+<span class="tab" class:active {...rest} onclick={activate}>
+  {@render children()}
 </span>
 
 <style>
   .tab {
     font-family: var(--font-stack);
-    font-size: var(--font-size-xsmall);
-    line-height: var(--font-line-height);
+    font-size: var(--font-size-11);
+    line-height: var(--line-height-16);
     font-weight: var(--font-weight-medium);
-    letter-spacing: var(--font-letter-spacing-pos-small);
+    letter-spacing: var(--letter-spacing-pos-055);
     color: var(--figma-color-text-secondary);
-    /* fill: var(--figma-color-text-secondary); */
     cursor: default;
     user-select: none;
   }
-  .tab :global(.icon) {
+
+  .tab :global(.icon-component) {
     color: inherit !important;
-    fill: none !important;
-    width: auto;
-    height: auto;
   }
-  .tab :global(.icon svg) {
-    width: 16px;
-    height: 16px;
-  }
+
   .tab:hover {
     color: var(--figma-color-text);
-    /* fill: var(--figma-color-text); */
   }
+
   .active {
     color: var(--figma-color-text);
-    /* fill: var(--figma-color-text); */
   }
 </style>

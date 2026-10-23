@@ -1,64 +1,61 @@
 <script lang="ts">
-  import { Input } from 'figma-plugin-ds-svelte';
-  import VariablePill from './VariablePill.svelte';
+  import { NumericInput } from 'figma-ui3-kit-svelte';
+  import ColorVariable from './ColorVariable.svelte';
   import { findCollection, getValue, isAlias } from './variables';
   import { hasReference, variables } from './data';
   import { messenger } from '../../infrastructure';
   import { CommandName } from '@theemo-figma/core/styles/commands';
   import type { VariableConfig } from '@theemo-figma/core/styles/index';
 
-  export let mode: {
-    modeId: string;
-    name: string;
-  };
-  export let variable: Variable;
+  let { mode, variable }: {
+    mode: { modeId: string; name: string };
+    variable: Variable;
+  } = $props();
 
-  $: collection = findCollection(variable);
-  $: name = collection.modes.length > 1 ? mode.name : 'Value';
-  $: value = getValue(variable, mode.modeId);
+  const collection = $derived(findCollection(variable));
+  const name = $derived(
+    (collection?.modes.length ?? 1) > 1 ? mode.name : 'Value'
+  );
+  const value = $derived(getValue(variable, mode.modeId));
 
-  $: transformsConfig = ($variables.find(
-    (varConfig) =>
-      varConfig.variableId === variable.id && varConfig.modeId === mode.modeId
-  ) ?? {}) as VariableConfig;
+  const transformsConfig = $derived(
+    ($variables.find(
+      (varConfig) =>
+        varConfig.variableId === variable.id && varConfig.modeId === mode.modeId
+    ) ?? {}) as VariableConfig
+  );
 
-  $: transforms = transformsConfig.transforms ?? {};
+  const transforms = $derived(transformsConfig.transforms ?? {});
 
   // transforms
-  $: hue = transforms.hue;
-  $: saturation = transforms.saturation;
-  $: lightness = transforms.lightness;
-  $: opacity = transforms.opacity;
+  const hue = $derived(transforms.hue);
+  const saturation = $derived(transforms.saturation);
+  const lightness = $derived(transforms.lightness);
+  const opacity = $derived(transforms.opacity);
 
-  function updateTransforms(prop: string) {
-    return function (event: Event) {
-      const value = (event.target as HTMLInputElement).value;
-      const number = Number.parseInt(value, 10);
+  function updateTransforms(prop: 'hue' | 'saturation' | 'lightness' | 'opacity') {
+    return function (value: number | null) {
+      // clone, mutate – transforms are derived state
+      const next = { ...transforms };
 
-      // let transforms = style.data.transforms;
-
-      // udpate
-      if (number) {
-        if (!transforms) {
-          transforms = {};
-        }
-
-        transforms[prop] = number;
+      // update
+      if (value) {
+        next[prop] = value;
+      }
+      // delete: NumericInput commits null when the field is emptied
+      else if (next[prop] !== undefined) {
+        delete next[prop];
       }
 
-      // delete
-      else if (transforms && transforms[prop] !== undefined) {
-        delete transforms[prop];
-      }
-
-      const transformsAvailable = Object.values(transforms).some(
+      const transformsAvailable = Object.values(next).some(
         (val) => val !== undefined
       );
+
       if (transformsAvailable) {
         messenger.send(CommandName.SaveTransforms, {
           variableId: variable.id,
           modeId: mode.modeId,
-          transforms
+          transforms: next
         });
       } else {
         messenger.send(CommandName.DeleteTransforms, {
@@ -68,57 +65,44 @@
       }
     };
   }
-
-  function modifyTransform(e: KeyboardEvent) {
-    const target = e.target as HTMLInputElement;
-    const number = target.value ? Number.parseInt(target.value, 10) ?? 0 : 0;
-
-    if (e.code === 'ArrowUp') {
-      target.value = `${number + 1}`;
-      e.preventDefault();
-    }
-    if (e.code === 'ArrowDown') {
-      target.value = `${number - 1}`;
-      e.preventDefault();
-    }
-  }
 </script>
 
 <div class="stack">
   <p class="line">
     {name}
-    <VariablePill {variable} mode={mode.modeId} />
+    <ColorVariable {variable} mode={mode.modeId} />
   </p>
 
   {#if isAlias(value) || hasReference(variable, mode.modeId)}
+    <NumericInput
+      placeholder="Opacity"
+      value={opacity}
+      onchange={updateTransforms('opacity')}
+    />
     <div class="input-group">
-      <Input
+      <NumericInput
+        label="H"
         placeholder="Hue"
         value={hue}
-        on:change={updateTransforms('hue')}
-        on:blur={updateTransforms('hue')}
-        on:keydown={modifyTransform}
+        min={-360}
+        max={360}
+        onchange={updateTransforms('hue')}
       />
-      <Input
+      <NumericInput
+        label="S"
         placeholder="Saturation"
         value={saturation}
-        on:change={updateTransforms('saturation')}
-        on:blur={updateTransforms('saturation')}
-        on:keydown={modifyTransform}
+        min={-100}
+        max={100}
+        onchange={updateTransforms('saturation')}
       />
-      <Input
+      <NumericInput
+        label="L"
         placeholder="Lightness"
         value={lightness}
-        on:change={updateTransforms('lightness')}
-        on:blur={updateTransforms('lightness')}
-        on:keydown={modifyTransform}
-      />
-      <Input
-        placeholder="Opacity"
-        value={opacity}
-        on:change={updateTransforms('opacity')}
-        on:blur={updateTransforms('opacity')}
-        on:keydown={modifyTransform}
+        min={-100}
+        max={100}
+        onchange={updateTransforms('lightness')}
       />
     </div>
   {/if}
@@ -132,7 +116,8 @@
   }
 
   .input-group {
-    display: flex;
     gap: 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
   }
 </style>

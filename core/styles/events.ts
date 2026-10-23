@@ -1,4 +1,4 @@
-import { Config, StyleDescriptor } from './index';
+import type { Config, StyleDescriptor } from './index';
 
 export enum EventName {
   StylesInitiated = 'styles.styles-initiated',

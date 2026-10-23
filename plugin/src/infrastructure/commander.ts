@@ -24,7 +24,7 @@ export default class Commander {
   }
 
   listen() {
-    figma.ui.onmessage = msg => {
+    figma.ui.onmessage = (msg) => {
       if (this.commands.has(msg.command)) {
         (this.commands.get(msg.command) as Command).execute(msg.data);
       }

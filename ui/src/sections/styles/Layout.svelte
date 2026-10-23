@@ -1,36 +1,37 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import type { StyleDescriptor } from '@theemo-figma/core/styles/index';
-
-  export let styles;
 
   import List from '../../components/List.svelte';
   import Style from './Style.svelte';
-  import { Type } from 'figma-plugin-ds-svelte';
+  import { Text } from 'figma-ui3-kit-svelte';
 
-  let style: StyleDescriptor;
+  let { styles, children }: {
+    styles: StyleDescriptor[];
+    children?: Snippet<[{ style: StyleDescriptor }]>;
+  } = $props();
 
-  $: {
-    if (style && styles && styles.indexOf(style) === -1) {
-      // attempt finding by id
-      style = styles.find((conf) => conf.id === style.id);
-    }
-  }
+  let selectedId = $state<string | undefined>(undefined);
+
+  // selection tracked by id: survives store updates that replace objects
+  let style = $derived(styles.find((s) => s.id === selectedId));
 </script>
 
 <div class="layout">
   <List
     items={styles}
-    selection={style}
-    select={(selection) => (style = selection)}
-    let:item
+    isSelected={(item: StyleDescriptor) => item.id === selectedId}
+    select={(item: StyleDescriptor) => (selectedId = item.id)}
   >
-    <Style style={item} />
+    {#snippet children({ item })}
+      <Style style={item} />
+    {/snippet}
   </List>
 
   <div>
     {#if style}
-      <Type size="medium" weight="medium" class="name"><Style {style} /></Type>
-      <slot {style} />
+      <Text variant="body-large" class="name"><Style {style} /></Text>
+      {@render children?.({ style })}
     {:else}
       Please select a token
     {/if}

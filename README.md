@@ -40,6 +40,20 @@ Or run the watch servers:
 pnpm dev
 ```
 
+Lint and format (orchestrated by Vite+ at the workspace root, installed
+locally as a devDependency — no global CLI required; the packages themselves
+run plain `vite` / `vitest` / `oxlint` / `oxfmt`):
+
+```bash
+pnpm test        # Vitest: plugin logic + UI (bus contract & panels)
+pnpm lint        # Oxlint + type checks (tsc, svelte-check) per project
+pnpm fmt         # Oxfmt over the whole workspace
+```
+
+Each check has an auto-fixing sibling: `pnpm lint:fix` and `pnpm fmt:fix`.
+Within a package the umbrella scripts fan out via pnpm's script-pattern
+runner (`lint` = `lint:js` + `lint:types`; `lint:fix` = every `lint:*:fix`).
+
 Then point Figma to the `manifest.json` in this repository to load the plugin.
 
 More documentation is available at [theemo.io](https://theemo.io).

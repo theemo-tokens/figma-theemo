@@ -2,9 +2,7 @@ import Command from '../../../infrastructure/command';
 import { CommandName, type Commands } from '@theemo-figma/core/styles/commands';
 import { readConfig, storeConfig } from '../store';
 import { VariableConfig } from '@theemo-figma/core/styles';
-import { findCollection, findVariableFromAlias, getResolvedValue } from '../../../variables';
-import { findVariableAlias, hasBoundVariable } from '../../../styles';
-import { updatePaintStyle } from '../referencer';
+import { getResolvedValue, isAlias, updateVariable } from '../../../variables';
 import { EventName } from '@theemo-figma/core/styles/events';
 
 export default class SaveTransformsCommand extends Command {
@@ -12,16 +10,22 @@ export default class SaveTransformsCommand extends Command {
 
   execute(data: Commands[CommandName.SaveTransforms]) {
     const config = readConfig();
-    const existing = config.variables.find(varConf => varConf.variableId === data.variableId && varConf.modeId === data.modeId);
-    let reference: Variable | null;
+    const existing = config.variables.find(
+      (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId
+    );
+    let conf: VariableConfig;
 
     if (existing) {
       existing.transforms = data.transforms;
-      reference = figma.variables.getVariableById(existing.referenceId);
+      conf = existing;
     } else {
       const referenceAlias = this.findReference(data);
-      reference = figma.variables.getVariableById(referenceAlias.id);
-      const conf: VariableConfig = {
+
+      if (!referenceAlias) {
+        return;
+      }
+
+      conf = {
         ...data,
         referenceId: referenceAlias.id
       };
@@ -31,35 +35,36 @@ export default class SaveTransformsCommand extends Command {
 
     storeConfig(config);
 
-    // update affected styles
-    if (reference) {
-      const consumingStyles = figma.getLocalPaintStyles().filter(style => {
-        if (hasBoundVariable(style)) {
-          const alias = findVariableAlias(style);
-          const variable = alias && findVariableFromAlias(alias);
-
-          return variable && variable.id === (reference as Variable).id;
-        }
-        return false;
-      });
-
-      for (const styleToUpdate of consumingStyles) {
-        updatePaintStyle({ style: styleToUpdate, id: styleToUpdate.id, name: styleToUpdate.name });
-      }
-    }
+    // the pair just saved must land right away, whether or not a paint style
+    // happens to be bound to the reference (later origin changes reach it
+    // through the StyleUpdated -> updatePaintStyle path)
+    updateVariable(conf);
 
     // update config in UI
     this.emitter.sendEvent(EventName.ConfigArrived, config);
   }
 
-  findReference(data: Commands[CommandName.SaveTransforms]): VariableAlias {
-    const variable = figma.variables.getVariableById(data.variableId) as Variable;
-    return variable.valuesByMode[data.modeId] as VariableAlias;
+  findReference(data: Commands[CommandName.SaveTransforms]): VariableAlias | undefined {
+    const variable = figma.variables.getVariableById(data.variableId);
+    const value = variable && variable.valuesByMode[data.modeId];
+
+    // only a real alias can serve as the reference for transforms
+    if (value && isAlias(value)) {
+      return value;
+    }
   }
 
   unlinkVariable(data: Commands[CommandName.SaveTransforms]) {
-    const variable = figma.variables.getVariableById(data.variableId) as Variable;
+    const variable = figma.variables.getVariableById(data.variableId);
+    if (!variable) {
+      return;
+    }
+
     const value = getResolvedValue(variable, data.modeId);
-    variable.setValueForMode(data.modeId, value);
+
+    // nothing to unlink when the chain dead-ends in a remote/deleted variable
+    if (value !== null) {
+      variable.setValueForMode(data.modeId, value);
+    }
   }
 }

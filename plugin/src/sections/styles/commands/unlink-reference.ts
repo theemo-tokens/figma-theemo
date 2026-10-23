@@ -7,7 +7,7 @@ export default class UnlinkReferenceCommand extends Command {
 
   execute(data: Commands[CommandName.UnlinkReference]) {
     const config = readConfig();
-    const existing = config.styles.find(style => style.styleId === data.styleId);
+    const existing = config.styles.find((style) => style.styleId === data.styleId);
 
     if (existing) {
       config.styles.splice(config.styles.indexOf(existing), 1);
