@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { defineConfig } from 'oxlint';
 
 // eslint-plugin-boundaries runs as an Oxlint JS plugin, recreating the
@@ -7,6 +8,7 @@ export default defineConfig({
   ignorePatterns: ['dist/**'],
   jsPlugins: ['eslint-plugin-boundaries'],
   settings: {
+    "boundaries/root-path": resolve(import.meta.dirname),
     // only the source trees are classified; config files at the root are
     // left to plain oxlint
     'boundaries/include': ['src/**/*.ts', 'src/**/*.svelte', 'tests/**/*.ts'],
