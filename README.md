@@ -28,31 +28,35 @@ First, install the dependencies:
 pnpm install
 ```
 
-Build the plugin (bundles into `dist/`):
+Build the plugin (one `vite build` produces both artifacts in `dist/`: the
+Figma sandbox bundle and the single-file UI):
 
 ```bash
 pnpm build
 ```
 
-Or run the watch servers:
+Or watch both build environments in a single process:
 
 ```bash
 pnpm dev
 ```
 
-Lint and format (orchestrated by Vite+ at the workspace root, installed
-locally as a devDependency — no global CLI required; the packages themselves
-run plain `vite` / `vitest` / `oxlint` / `oxfmt`):
+Test, lint and format (plain `vite` / `vitest` / `oxlint` / `oxfmt`):
 
 ```bash
-pnpm test        # Vitest: plugin logic + UI (bus contract & panels)
-pnpm lint        # Oxlint + type checks (tsc, svelte-check) per project
-pnpm fmt         # Oxfmt over the whole workspace
+pnpm test        # Vitest: plugin (Figma API) + UI (bus contract & panels)
+pnpm lint        # Oxlint (+ import boundaries via eslint-plugin-boundaries)
+                 # + type checks: tsc for plugin/core, svelte-check for UI
+pnpm fmt         # Oxfmt over the whole repo
 ```
 
 Each check has an auto-fixing sibling: `pnpm lint:fix` and `pnpm fmt:fix`.
-Within a package the umbrella scripts fan out via pnpm's script-pattern
-runner (`lint` = `lint:js` + `lint:types`; `lint:fix` = every `lint:*:fix`).
+
+Import boundaries mirror the old package split: `src/plugin` and `src/ui`
+must not import each other, both may import the shared `src/core` (which
+takes no dependencies at all), and external packages are allowed per tree
+as their former `package.json` did. See `oxlint.config.ts`
+(`eslint-plugin-boundaries` rules).
 
 Then point Figma to the `manifest.json` in this repository to load the plugin.
 
