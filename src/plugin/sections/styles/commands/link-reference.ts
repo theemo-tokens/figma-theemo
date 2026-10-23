@@ -5,8 +5,8 @@ import { readConfig, storeConfig } from '../store';
 export default class LinkReferenceCommand extends Command {
   NAME = CommandName.LinkReference;
 
-  execute(data: Commands[CommandName.LinkReference]) {
-    const config = readConfig();
+  async execute(data: Commands[CommandName.LinkReference]) {
+    const config = await readConfig();
     const existing = config.styles.find((style) => style.styleId === data.styleId);
 
     if (existing) {
@@ -15,7 +15,7 @@ export default class LinkReferenceCommand extends Command {
       config.styles.push(data);
     }
 
-    storeConfig(config);
+    await storeConfig(config);
     this.commander.run(CommandName.ReadConfig);
   }
 }

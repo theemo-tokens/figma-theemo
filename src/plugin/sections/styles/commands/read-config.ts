@@ -6,8 +6,8 @@ import { EventName } from '@core/styles/events';
 export default class ReadConfigCommand extends Command {
   NAME = CommandName.ReadConfig;
 
-  execute(_data: Commands[CommandName.ReadConfig]) {
-    const config = readConfig();
+  async execute(_data: Commands[CommandName.ReadConfig]) {
+    const config = await readConfig();
 
     this.emitter.sendEvent(EventName.ConfigArrived, config);
   }

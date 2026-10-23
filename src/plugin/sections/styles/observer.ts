@@ -3,7 +3,7 @@ import { filterObject, getIdFromChange } from './utils';
 import { serialize } from '../../utils';
 import Emitter from '../../infrastructure/emitter';
 import { readConfig } from './store';
-import { Config, StyleDescriptor } from '@core/styles';
+import { StyleDescriptor } from '@core/styles';
 
 const SKIPPED_SERIALIZATION_FIELDS = ['consumers'];
 
@@ -11,30 +11,29 @@ type StyleMap = Map<string, StyleDescriptor>;
 
 export class StylesObserver {
   private descriptors: StyleMap = new Map();
-  private config: Config;
 
   constructor(private emitter: Emitter) {
     figma.on('stylechange', this.listen.bind(this));
 
-    this.config = readConfig();
-
-    this.init();
+    this.init().catch((e) => console.log('styles init failed', e));
   }
 
-  private init() {
+  private async init() {
+    const config = await readConfig();
+
     const localStyles = [
-      ...figma.getLocalPaintStyles(),
-      ...figma.getLocalEffectStyles(),
-      ...figma.getLocalTextStyles()
+      ...(await figma.getLocalPaintStylesAsync()),
+      ...(await figma.getLocalEffectStylesAsync()),
+      ...(await figma.getLocalTextStylesAsync())
     ];
 
     for (const style of localStyles) {
-      const config = this.config.styles.find((config) => config.styleId === style.id) ?? {};
+      const styleConfig = config.styles.find((entry) => entry.styleId === style.id) ?? {};
       this.descriptors.set(style.id, {
         id: style.id,
         name: style.name,
         style,
-        ...filterObject(config, ['id'])
+        ...filterObject(styleConfig, ['id'])
       });
     }
 

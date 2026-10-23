@@ -4,5 +4,6 @@
   "api": "1.0.0",
   "main": "dist/main.js",
   "ui": "dist/index.html",
-  "editorType": ["figma"]
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page"
 }

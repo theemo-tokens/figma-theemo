@@ -5,14 +5,14 @@ import { readConfig, storeConfig } from '../store';
 export default class UnlinkReferenceCommand extends Command {
   NAME = CommandName.UnlinkReference;
 
-  execute(data: Commands[CommandName.UnlinkReference]) {
-    const config = readConfig();
+  async execute(data: Commands[CommandName.UnlinkReference]) {
+    const config = await readConfig();
     const existing = config.styles.find((style) => style.styleId === data.styleId);
 
     if (existing) {
       config.styles.splice(config.styles.indexOf(existing), 1);
 
-      storeConfig(config);
+      await storeConfig(config);
       this.commander.run(CommandName.ReadConfig);
     }
   }

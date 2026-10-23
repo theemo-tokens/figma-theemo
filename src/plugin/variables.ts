@@ -2,22 +2,25 @@ import type { VariableConfig } from '@core/styles';
 import { isColorValue } from '@core/colors';
 import { applyTransforms, getValueAsHex } from './styles';
 
-export function findVariableFromAlias(alias: VariableAlias) {
-  return figma.variables.getLocalVariables().find((variable) => variable.id === alias.id);
+export async function findVariableFromAlias(alias: VariableAlias) {
+  const localVariables = await figma.variables.getLocalVariablesAsync();
+
+  return localVariables.find((variable) => variable.id === alias.id);
 }
 
-export function findCollection(variable: Variable) {
-  return figma.variables
-    .getLocalVariableCollections()
-    .find((collection) => collection.id === variable.variableCollectionId);
+export async function findCollection(variable: Variable) {
+  const collections = await figma.variables.getLocalVariableCollectionsAsync();
+
+  return collections.find((collection) => collection.id === variable.variableCollectionId);
 }
 
-export function getValue(variable: Variable, mode?: string) {
-  const collection = findCollection(variable) as VariableCollection;
+export async function getValue(variable: Variable, mode?: string) {
+  const collection = (await findCollection(variable)) as VariableCollection;
   const usedMode =
     mode && collection.modes.find((collMode) => collMode.modeId === mode)
       ? mode
       : collection.defaultModeId;
+
   return variable.valuesByMode[usedMode];
 }
 
@@ -31,26 +34,26 @@ export function isAlias(value: VariableValue | null | undefined): value is Varia
 
 /** Resolves a chain of variable aliases. Returns null when the chain ends at a
  *  variable that isn't available locally (deleted or a published-library
- *  variable - `getLocalVariables()` never lists those). */
-export function getResolvedValue(
+ *  variable - `getLocalVariablesAsync()` never lists those). */
+export async function getResolvedValue(
   variable: Variable | undefined | null,
   mode?: string
-): VariableValue | null {
+): Promise<VariableValue | null> {
   if (!variable) {
     return null;
   }
 
-  const value = getValue(variable, mode);
+  const value = await getValue(variable, mode);
 
   if (isAlias(value)) {
-    return getResolvedValue(findVariableFromAlias(value), mode);
+    return getResolvedValue(await findVariableFromAlias(value), mode);
   }
 
   return value;
 }
 
-export function findColorForVariable(variable: Variable, mode?: string) {
-  const value = getResolvedValue(variable, mode);
+export async function findColorForVariable(variable: Variable, mode?: string) {
+  const value = await getResolvedValue(variable, mode);
 
   if (!isColorValue(value)) {
     return 'transparent';
@@ -63,17 +66,17 @@ export function findColorForVariable(variable: Variable, mode?: string) {
  *  its referenced origin plus the transforms. Works only on variables - used
  *  by both the style event propagation (updatePaintStyle) and the
  *  save-transforms command, so no caller does its own math. */
-export function updateVariable(conf: VariableConfig) {
-  const variable = figma.variables.getVariableById(conf.variableId);
-  const reference = figma.variables.getVariableById(conf.referenceId);
+export async function updateVariable(conf: VariableConfig) {
+  const variable = await figma.variables.getVariableByIdAsync(conf.variableId);
+  const reference = await figma.variables.getVariableByIdAsync(conf.referenceId);
 
   // transformed values are colors - only COLOR variables accept them
   if (!variable || !reference || variable.resolvedType !== 'COLOR' || !conf.transforms) {
     return;
   }
 
-  const collection = findCollection(variable);
-  const referenceCollection = findCollection(reference);
+  const collection = await findCollection(variable);
+  const referenceCollection = await findCollection(reference);
 
   if (!collection || !referenceCollection) {
     return;
@@ -82,7 +85,7 @@ export function updateVariable(conf: VariableConfig) {
   // same collection: the mode ids align; otherwise read the origin's default
   const modeId =
     collection.id === referenceCollection.id ? conf.modeId : referenceCollection.defaultModeId;
-  const originValue = getResolvedValue(reference, modeId);
+  const originValue = await getResolvedValue(reference, modeId);
 
   // guard: aliases can resolve to non-color values (or disappear into
   // published-library variables) - writing a color to those is what Figma's

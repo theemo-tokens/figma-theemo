@@ -90,19 +90,20 @@ describe('isColorValue', () => {
 });
 
 describe('getResolvedValue', () => {
-  test('returns null for aliases ending at a non-local variable', () => {
-    // published-library / deleted variable: not listed by getLocalVariables()
+  test('returns null for aliases ending at a non-local variable', async () => {
+    // published-library / deleted variable: not listed by getLocalVariablesAsync()
     ((globalThis as any).figma as any).variables = {
-      getLocalVariables: () => [],
-      getLocalVariableCollections: () => [
-        {
-          id: 'C:1',
-          name: 'coll',
-          defaultModeId: 'm1',
-          modes: [{ modeId: 'm1', name: 'Mode 1' }],
-          variableIds: []
-        }
-      ]
+      getLocalVariablesAsync: () => Promise.resolve([]),
+      getLocalVariableCollectionsAsync: () =>
+        Promise.resolve([
+          {
+            id: 'C:1',
+            name: 'coll',
+            defaultModeId: 'm1',
+            modes: [{ modeId: 'm1', name: 'Mode 1' }],
+            variableIds: []
+          }
+        ])
     };
 
     const link = {
@@ -111,10 +112,10 @@ describe('getResolvedValue', () => {
       valuesByMode: { m1: { type: 'VARIABLE_ALIAS', id: 'V:gone' } }
     } as unknown as Variable;
 
-    expect(getResolvedValue(link, 'm1')).toBeNull();
+    expect(await getResolvedValue(link, 'm1')).toBeNull();
   });
 
-  test('resolves a local alias chain', () => {
+  test('resolves a local alias chain', async () => {
     const target = {
       id: 'V:origin',
       variableCollectionId: 'C:1',
@@ -127,18 +128,19 @@ describe('getResolvedValue', () => {
     } as unknown as Variable;
 
     ((globalThis as any).figma as any).variables = {
-      getLocalVariables: () => [target, link],
-      getLocalVariableCollections: () => [
-        {
-          id: 'C:1',
-          name: 'coll',
-          defaultModeId: 'm1',
-          modes: [{ modeId: 'm1', name: 'Mode 1' }],
-          variableIds: ['V:origin', 'V:link']
-        }
-      ]
+      getLocalVariablesAsync: () => Promise.resolve([target, link]),
+      getLocalVariableCollectionsAsync: () =>
+        Promise.resolve([
+          {
+            id: 'C:1',
+            name: 'coll',
+            defaultModeId: 'm1',
+            modes: [{ modeId: 'm1', name: 'Mode 1' }],
+            variableIds: ['V:origin', 'V:link']
+          }
+        ])
     };
 
-    expect(getResolvedValue(link, 'm1')).toEqual({ r: 1, g: 0, b: 0 });
+    expect(await getResolvedValue(link, 'm1')).toEqual({ r: 1, g: 0, b: 0 });
   });
 });

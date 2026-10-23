@@ -8,7 +8,12 @@ import { applyTransforms } from '../../src/plugin/styles';
 
 // fresh stub per test: the `.theemo/config` grid style would leak state
 beforeEach(() => {
-  (globalThis as any).figma = createFigma({});
+  const stub: any = createFigma({});
+
+  // the stub lacks the dynamic-page async style APIs the store calls
+  stub.getLocalGridStylesAsync = () => Promise.resolve(stub.getLocalGridStyles());
+
+  (globalThis as any).figma = stub;
 });
 
 const ORIGIN = {
@@ -44,27 +49,29 @@ function installVariablesStub() {
   };
 
   (globalThis as any).figma.variables = {
-    getVariableById: (id: string) => [ORIGIN, consuming, consumingSame].find((v) => v.id === id),
-    getLocalVariables: () => [ORIGIN, consuming, consumingSame],
-    getLocalVariableCollections: () => [
-      {
-        id: 'C:base',
-        name: 'Base',
-        defaultModeId: '0:1',
-        modes: [
-          { modeId: '0:1', name: 'Light' },
-          { modeId: '0:2', name: 'Dark' }
-        ],
-        variableIds: [ORIGIN.id, consumingSame.id]
-      },
-      {
-        id: 'C:brand',
-        name: 'Brand',
-        defaultModeId: '0:1',
-        modes: [{ modeId: '0:1', name: 'Light' }],
-        variableIds: [consuming.id]
-      }
-    ]
+    getVariableByIdAsync: (id: string) =>
+      Promise.resolve([ORIGIN, consuming, consumingSame].find((v) => v.id === id)),
+    getLocalVariablesAsync: () => Promise.resolve([ORIGIN, consuming, consumingSame]),
+    getLocalVariableCollectionsAsync: () =>
+      Promise.resolve([
+        {
+          id: 'C:base',
+          name: 'Base',
+          defaultModeId: '0:1',
+          modes: [
+            { modeId: '0:1', name: 'Light' },
+            { modeId: '0:2', name: 'Dark' }
+          ],
+          variableIds: [ORIGIN.id, consumingSame.id]
+        },
+        {
+          id: 'C:brand',
+          name: 'Brand',
+          defaultModeId: '0:1',
+          modes: [{ modeId: '0:1', name: 'Light' }],
+          variableIds: [consuming.id]
+        }
+      ])
   };
 
   return { consuming, consumingSame };
@@ -78,12 +85,16 @@ function command() {
 }
 
 describe('SaveTransformsCommand', () => {
-  test('applies saved transforms to the consuming variable right away', () => {
+  test('applies saved transforms to the consuming variable right away', async () => {
     const { consuming } = installVariablesStub();
 
     // no paint style at all: an earlier version only applied the transform by
     // walking styles bound to the reference, so nothing ever landed
-    command().execute({ variableId: consuming.id, modeId: '0:1', transforms: { lightness: 20 } });
+    await command().execute({
+      variableId: consuming.id,
+      modeId: '0:1',
+      transforms: { lightness: 20 }
+    });
 
     const expected = applyTransforms({ r: 1, g: 0, b: 0, a: 1 }, { lightness: 20 });
     const consumingCalls = consuming.setValueForMode.mock.calls;
@@ -94,12 +105,12 @@ describe('SaveTransformsCommand', () => {
     expect(lastCall![1]).toEqual(expected);
   });
 
-  test('stores the reference from the alias and keeps the config in shape', () => {
+  test('stores the reference from the alias and keeps the config in shape', async () => {
     const { consuming } = installVariablesStub();
 
-    command().execute({ variableId: consuming.id, modeId: '0:1', transforms: { hue: 10 } });
+    await command().execute({ variableId: consuming.id, modeId: '0:1', transforms: { hue: 10 } });
 
-    const config = readConfig();
+    const config = await readConfig();
 
     expect(config.variables).toHaveLength(1);
     expect(config.variables[0]).toEqual({
@@ -110,13 +121,13 @@ describe('SaveTransformsCommand', () => {
     });
   });
 
-  test('re-applies with the updated transforms when an entry already exists', () => {
+  test('re-applies with the updated transforms when an entry already exists', async () => {
     const { consuming } = installVariablesStub();
     const cmd = command();
 
-    cmd.execute({ variableId: consuming.id, modeId: '0:1', transforms: { lightness: 20 } });
+    await cmd.execute({ variableId: consuming.id, modeId: '0:1', transforms: { lightness: 20 } });
     consuming.setValueForMode.mockClear();
-    cmd.execute({ variableId: consuming.id, modeId: '0:1', transforms: { lightness: 50 } });
+    await cmd.execute({ variableId: consuming.id, modeId: '0:1', transforms: { lightness: 50 } });
 
     const expected = applyTransforms({ r: 1, g: 0, b: 0, a: 1 }, { lightness: 50 });
     const consumingCalls = consuming.setValueForMode.mock.calls;
@@ -125,13 +136,13 @@ describe('SaveTransformsCommand', () => {
     // only the transform write - no second unlink on an existing entry
     expect(consuming.setValueForMode).toHaveBeenCalledTimes(1);
     expect(lastCall![1]).toEqual(expected);
-    expect(readConfig().variables[0].transforms).toEqual({ lightness: 50 });
+    expect((await readConfig()).variables[0].transforms).toEqual({ lightness: 50 });
   });
 
-  test('reads the origin value from the matching mode of a shared collection', () => {
+  test('reads the origin value from the matching mode of a shared collection', async () => {
     const { consumingSame } = installVariablesStub();
 
-    command().execute({
+    await command().execute({
       variableId: consumingSame.id,
       modeId: '0:2',
       transforms: { lightness: 20 }
