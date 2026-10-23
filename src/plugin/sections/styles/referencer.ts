@@ -22,18 +22,20 @@ function updateStyle(data: Events[EventName.StyleUpdated]) {
 
   // paint styles
   if (data.style.type === 'PAINT') {
-    updatePaintStyle(data);
+    updatePaintStyle(data).catch((e) => console.log('style update failed', e));
   }
 }
 
 async function updateTextAndEffectStyle(data: StyleDescriptor) {
-  const config = readConfig();
+  const config = await readConfig();
   const references = findReferencesConfig(data, config);
   // @ts-ignore
   const copy: CopyStyle<TextStyle | EffectStyle> =
     data.style.type === 'EFFECT' ? copyEffectStyle : copyTextStyle;
   const locals: BaseStyle[] =
-    data.style.type === 'EFFECT' ? figma.getLocalEffectStyles() : figma.getLocalTextStyles();
+    data.style.type === 'EFFECT'
+      ? await figma.getLocalEffectStylesAsync()
+      : await figma.getLocalTextStylesAsync();
 
   await Promise.all(
     references
@@ -45,19 +47,19 @@ async function updateTextAndEffectStyle(data: StyleDescriptor) {
   );
 }
 
-function updatePaintStyle(data: StyleDescriptor) {
+async function updatePaintStyle(data: StyleDescriptor) {
   const style = data.style as PaintStyle;
 
   if (hasBoundVariable(style)) {
     const alias = findVariableAlias(style);
-    const variable = alias && findVariableFromAlias(alias);
-    const config = readConfig();
+    const variable = alias && (await findVariableFromAlias(alias));
+    const config = await readConfig();
 
     if (variable) {
       // every consuming variable that references the changed origin gets
       // its transformed value re-derived
       for (const conf of config.variables.filter((c) => c.referenceId === variable.id)) {
-        updateVariable(conf);
+        await updateVariable(conf);
       }
     }
   }

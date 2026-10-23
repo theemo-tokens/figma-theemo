@@ -68,9 +68,9 @@ describe('referencer | text style references', () => {
 
     const prose = createGuardedTextStyle('S:prose,', 'prose', INTER, loaded);
     const body = createGuardedTextStyle('S:body,', 'body', INTER, loaded);
-    vi.spyOn(figma, 'getLocalTextStyles').mockReturnValue([prose, body]);
+    vi.spyOn(figma, 'getLocalTextStylesAsync').mockResolvedValue([prose, body]);
 
-    storeConfig({ styles: [{ styleId: 'S:body,', referenceId: 'S:prose,' }], variables: [] });
+    await storeConfig({ styles: [{ styleId: 'S:body,', referenceId: 'S:prose,' }], variables: [] });
 
     // prose is edited: font size and line height change (observer emits the
     // serialized descriptor - `body` starts out as an exact copy of prose)
@@ -114,9 +114,9 @@ describe('referencer | text style references', () => {
 
     const prose = createGuardedTextStyle('S:prose,', 'prose', INTER, loaded);
     const body = createGuardedTextStyle('S:body,', 'body', ROBOTO, loaded);
-    vi.spyOn(figma, 'getLocalTextStyles').mockReturnValue([prose, body]);
+    vi.spyOn(figma, 'getLocalTextStylesAsync').mockResolvedValue([prose, body]);
 
-    storeConfig({ styles: [{ styleId: 'S:body,', referenceId: 'S:prose,' }], variables: [] });
+    await storeConfig({ styles: [{ styleId: 'S:body,', referenceId: 'S:prose,' }], variables: [] });
 
     emitter.sendEvent(EventName.StyleUpdated, {
       id: 'S:prose,',
@@ -156,9 +156,9 @@ describe('referencer | text style references', () => {
 
     const prose = createGuardedTextStyle('S:prose,', 'prose', INTER, loaded);
     const body = createGuardedTextStyle('S:body,', 'body', INTER, loaded);
-    vi.spyOn(figma, 'getLocalTextStyles').mockReturnValue([prose, body]);
+    vi.spyOn(figma, 'getLocalTextStylesAsync').mockResolvedValue([prose, body]);
 
-    storeConfig({
+    await storeConfig({
       styles: [
         { styleId: 'S:deleted,', referenceId: 'S:prose,' },
         { styleId: 'S:body,', referenceId: 'S:prose,' }
@@ -191,7 +191,7 @@ describe('referencer | text style references', () => {
 });
 
 describe('referencer | paint variable references', () => {
-  test('re-derives consuming variables when the origin style updates', () => {
+  test('re-derives consuming variables when the origin style updates', async () => {
     const setValueForMode = vi.fn();
 
     const origin = {
@@ -211,27 +211,29 @@ describe('referencer | paint variable references', () => {
     };
 
     (globalThis as any).figma.variables = {
-      getVariableById: (id: string) => [origin, consuming].find((v) => v.id === id),
-      getLocalVariables: () => [origin, consuming],
-      getLocalVariableCollections: () => [
-        {
-          id: 'C:base',
-          name: 'Base',
-          defaultModeId: '0:1',
-          modes: [{ modeId: '0:1', name: 'Light' }],
-          variableIds: [origin.id]
-        },
-        {
-          id: 'C:brand',
-          name: 'Brand',
-          defaultModeId: '0:1',
-          modes: [{ modeId: '0:1', name: 'Light' }],
-          variableIds: [consuming.id]
-        }
-      ]
+      getVariableByIdAsync: (id: string) =>
+        Promise.resolve([origin, consuming].find((v) => v.id === id)),
+      getLocalVariablesAsync: () => Promise.resolve([origin, consuming]),
+      getLocalVariableCollectionsAsync: () =>
+        Promise.resolve([
+          {
+            id: 'C:base',
+            name: 'Base',
+            defaultModeId: '0:1',
+            modes: [{ modeId: '0:1', name: 'Light' }],
+            variableIds: [origin.id]
+          },
+          {
+            id: 'C:brand',
+            name: 'Brand',
+            defaultModeId: '0:1',
+            modes: [{ modeId: '0:1', name: 'Light' }],
+            variableIds: [consuming.id]
+          }
+        ])
     };
 
-    storeConfig({
+    await storeConfig({
       styles: [],
       variables: [
         // the pair under test, plus an orphan whose target no longer exists
@@ -271,6 +273,8 @@ describe('referencer | paint variable references', () => {
         ]
       }
     } as never);
+
+    await flush();
 
     const expected = applyTransforms({ r: 1, g: 0, b: 0, a: 1 }, { lightness: 20 });
     expect(setValueForMode).toHaveBeenCalledWith('0:1', expected);

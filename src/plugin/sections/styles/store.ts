@@ -2,21 +2,26 @@ import type { Config } from '@core/styles/index';
 
 const CONFIG = '.theemo/config';
 
-function findStyle(): GridStyle | undefined {
-  return figma.getLocalGridStyles().find((style) => style.name === CONFIG);
+async function findStyle(): Promise<GridStyle | undefined> {
+  const styles = await figma.getLocalGridStylesAsync();
+
+  return styles.find((style) => style.name === CONFIG);
 }
 
-function findOrCreateStyle() {
-  let style = findStyle();
+async function findOrCreateStyle() {
+  let style = await findStyle();
+
   if (!style) {
     style = figma.createGridStyle();
     style.name = CONFIG;
   }
+
   return style;
 }
 
-export function readConfig(): Config {
-  const refStore = findStyle();
+export async function readConfig(): Promise<Config> {
+  const refStore = await findStyle();
+
   if (refStore) {
     return JSON.parse(refStore.description ?? {});
   }
@@ -27,7 +32,7 @@ export function readConfig(): Config {
   };
 }
 
-export function storeConfig(config: Config) {
-  let refStore = findOrCreateStyle();
+export async function storeConfig(config: Config) {
+  const refStore = await findOrCreateStyle();
   refStore.description = JSON.stringify(config);
 }

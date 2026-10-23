@@ -6,8 +6,8 @@ import { VariableConfig } from '@core/styles';
 export default class DeleteTransformsCommand extends Command {
   NAME = CommandName.DeleteTransforms;
 
-  execute(data: Commands[CommandName.DeleteTransforms]) {
-    const config = readConfig();
+  async execute(data: Commands[CommandName.DeleteTransforms]) {
+    const config = await readConfig();
     const existing = config.variables.find(
       (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId
     );
@@ -15,15 +15,15 @@ export default class DeleteTransformsCommand extends Command {
     if (existing) {
       config.variables.splice(config.variables.indexOf(existing), 1);
 
-      storeConfig(config);
+      await storeConfig(config);
 
-      this.linkVariable(existing);
+      await this.linkVariable(existing);
     }
   }
 
-  linkVariable(data: VariableConfig) {
-    const variable = figma.variables.getVariableById(data.variableId);
-    const reference = figma.variables.getVariableById(data.referenceId);
+  async linkVariable(data: VariableConfig) {
+    const variable = await figma.variables.getVariableByIdAsync(data.variableId);
+    const reference = await figma.variables.getVariableByIdAsync(data.referenceId);
 
     if (variable && reference) {
       const alias = figma.variables.createVariableAlias(reference);

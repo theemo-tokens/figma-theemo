@@ -5,15 +5,17 @@ import { serialize } from '../../../utils';
 export default class UpdateVariablesCommand extends Command {
   NAME = CommandName.UpdateVariables;
 
-  execute() {
+  async execute() {
+    const variables = await figma.variables.getLocalVariablesAsync();
     const vars = Object.fromEntries(
-      figma.variables.getLocalVariables().map((variable) => [variable.id, serialize(variable)])
+      variables.map((variable) => [variable.id, serialize(variable)])
     );
     figma.root.setPluginData('variables', JSON.stringify(vars));
 
-    const collections = Object.fromEntries(
-      figma.variables.getLocalVariableCollections().map((col) => [col.id, serialize(col)])
+    const collections = await figma.variables.getLocalVariableCollectionsAsync();
+    const storedCollections = Object.fromEntries(
+      collections.map((col) => [col.id, serialize(col)])
     );
-    figma.root.setPluginData('variableCollections', JSON.stringify(collections));
+    figma.root.setPluginData('variableCollections', JSON.stringify(storedCollections));
   }
 }

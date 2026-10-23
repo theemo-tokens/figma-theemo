@@ -8,8 +8,8 @@ import { EventName } from '@core/styles/events';
 export default class SaveTransformsCommand extends Command {
   NAME = CommandName.SaveTransforms;
 
-  execute(data: Commands[CommandName.SaveTransforms]) {
-    const config = readConfig();
+  async execute(data: Commands[CommandName.SaveTransforms]) {
+    const config = await readConfig();
     const existing = config.variables.find(
       (varConf) => varConf.variableId === data.variableId && varConf.modeId === data.modeId
     );
@@ -19,7 +19,7 @@ export default class SaveTransformsCommand extends Command {
       existing.transforms = data.transforms;
       conf = existing;
     } else {
-      const referenceAlias = this.findReference(data);
+      const referenceAlias = await this.findReference(data);
 
       if (!referenceAlias) {
         return;
@@ -30,22 +30,24 @@ export default class SaveTransformsCommand extends Command {
         referenceId: referenceAlias.id
       };
       config.variables.push(conf);
-      this.unlinkVariable(data);
+      await this.unlinkVariable(data);
     }
 
-    storeConfig(config);
+    await storeConfig(config);
 
     // the pair just saved must land right away, whether or not a paint style
     // happens to be bound to the reference (later origin changes reach it
     // through the StyleUpdated -> updatePaintStyle path)
-    updateVariable(conf);
+    await updateVariable(conf);
 
     // update config in UI
     this.emitter.sendEvent(EventName.ConfigArrived, config);
   }
 
-  findReference(data: Commands[CommandName.SaveTransforms]): VariableAlias | undefined {
-    const variable = figma.variables.getVariableById(data.variableId);
+  async findReference(
+    data: Commands[CommandName.SaveTransforms]
+  ): Promise<VariableAlias | undefined> {
+    const variable = await figma.variables.getVariableByIdAsync(data.variableId);
     const value = variable && variable.valuesByMode[data.modeId];
 
     // only a real alias can serve as the reference for transforms
@@ -54,13 +56,14 @@ export default class SaveTransformsCommand extends Command {
     }
   }
 
-  unlinkVariable(data: Commands[CommandName.SaveTransforms]) {
-    const variable = figma.variables.getVariableById(data.variableId);
+  async unlinkVariable(data: Commands[CommandName.SaveTransforms]) {
+    const variable = await figma.variables.getVariableByIdAsync(data.variableId);
+
     if (!variable) {
       return;
     }
 
-    const value = getResolvedValue(variable, data.modeId);
+    const value = await getResolvedValue(variable, data.modeId);
 
     // nothing to unlink when the chain dead-ends in a remote/deleted variable
     if (value !== null) {

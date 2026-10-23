@@ -7,7 +7,7 @@ export default abstract class Command {
   declare commander: Commander;
   declare emitter: Emitter;
 
-  abstract execute(data?: any): void;
+  abstract execute(data?: any): void | Promise<void>;
 
   protected run(name: string) {
     this.commander.run(name);
